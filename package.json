@@ -1,0 +1,23 @@
+{
+  "name": "ciccc-program-project",
+  "version": "1.0.0",
+  "description": "- Each group can have **up to 2 members**, depending on project size, to ensure effective workload distribution.\r - Discuss and assign roles and responsibilities within the team.",
+  "main": "index.js",
+  "scripts":{
+    "dev":"tsx watch src/server.ts",
+    "build":"tsc",
+    "start":"node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karlaleticiaavila/ciccc-program-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/karlaleticiaavila/ciccc-program-project/issues"
+  },
+  "homepage": "https://github.com/karlaleticiaavila/ciccc-program-project#readme"
+}

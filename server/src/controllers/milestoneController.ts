@@ -33,7 +33,7 @@ export const getMilestones = async (
   res: Response
 ): Promise<void> => {
   try {
-    const milestones = await Milestone.find();
+    const milestones = await Milestone.find().populate("userId");
 
     res.status(200).json(milestones);
   } catch (error) {

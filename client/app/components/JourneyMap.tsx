@@ -1,42 +1,77 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
-    ReactFlow,Background,Controls,MiniMap,} from "@xyflow/react";
+  ReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  type Node,
+  type Edge,
+} from "@xyflow/react";
+import { socket } from "../../lib/socket";
 
+import "@xyflow/react/dist/style.css";
 
-    import "@xyflow/react/dist/style.css";
+type Milestone = {
+  _id: string;
+  title: string;
+  description: string;
+  date: string;
+  category: string;
+};
 
-    const nodes = [
-        {
-            id: "1",
-            position: { x: 100, y: 100 },
-            data: { label: "Started Web Development" },
+export default function JourneyMap() {
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("✅ Connected to server:", socket.id);
+    });
+
+    return () => {
+      socket.off("connect");
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchMilestones = async () => {
+      const res = await fetch("http://localhost:5000/api/milestones");
+      const data: Milestone[] = await res.json();
+
+      const milestoneNodes: Node[] = data.map((milestone, index) => ({
+        id: milestone._id,
+        position: {
+          x: index * 350,
+          y: index % 2 === 0 ? 100 : 260,
         },
-        {
-            id: "2",
-            position: { x: 450, y: 100 },
-            data: { label: "Learned HTML, CSS, and JavaScript" },
+        data: {
+          label: milestone.title,
         },
-        {
-            id: "3",
-            position: { x: 850, y: 150 },
-            data: { label: "Built First Web App Who are you becoming?" },
-        },
-    ];
+      }));
 
-    const edges = [
-        { id: "e1-2", source: "1", target: "2" ,animated:true},
-        { id: "e2-3", source: "2", target: "3" ,animated:true},
-    ];
+      const milestoneEdges: Edge[] = data.slice(1).map((milestone, index) => ({
+        id: `edge-${data[index]._id}-${milestone._id}`,
+        source: data[index]._id,
+        target: milestone._id,
+        animated: true,
+      }));
 
-    export default function JourneyMap() {
-        return (
-            <div style={{ width: "100%", height: "700px", color: "black" }}>
-                <ReactFlow nodes={nodes} edges={edges} fitView>
-                    <Background />
-                    <Controls />
-                    <MiniMap />
-                </ReactFlow>
-            </div>
-        );
-    }
+      setNodes(milestoneNodes);
+      setEdges(milestoneEdges);
+    };
+
+    fetchMilestones();
+  }, []);
+
+  return (
+    <div style={{ width: "100%", height: "700px", color: "black" }}>
+      <ReactFlow nodes={nodes} edges={edges} fitView>
+        <Background />
+        <Controls />
+        <MiniMap />
+      </ReactFlow>
+    </div>
+  );
+}
