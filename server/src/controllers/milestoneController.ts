@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Milestone from "../models/Milestone.js";
+import { io } from "../server.js";
 
 export const createMilestone = async (
   req: Request,
@@ -15,6 +16,8 @@ export const createMilestone = async (
       category,
       userId,
     });
+
+    io.emit("milestoneCreated", milestone);
 
     res.status(201).json({
       message: "Milestone created successfully",
