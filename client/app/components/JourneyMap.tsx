@@ -1,5 +1,5 @@
 "use client";
-
+import type { Milestone } from "../../lib/types/milestone";
 import { useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
@@ -12,14 +12,6 @@ import {
 import { socket } from "../../lib/socket";
 
 import "@xyflow/react/dist/style.css";
-
-type Milestone = {
-  _id: string;
-  title: string;
-  description: string;
-  date: string;
-  category: string;
-};
 
 
 
