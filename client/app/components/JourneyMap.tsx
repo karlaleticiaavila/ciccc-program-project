@@ -13,13 +13,18 @@ import { socket } from "../../lib/socket";
 
 import "@xyflow/react/dist/style.css";
 
+type JourneyMapProps = {
+  onMilestoneSelect: (milestone: Milestone) => void;
+};
 
-
-export default function JourneyMap() {
+export default function JourneyMap({
+  onMilestoneSelect,
+}: JourneyMapProps) {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  
 
   const fetchMilestones = useCallback(async () => {
     try {
@@ -44,7 +49,8 @@ export default function JourneyMap() {
             y: index % 2 === 0 ? 100 : 260,
           },
           data: {
-            label: milestone.title,
+            
+            milestone,
           },
         })
       );
@@ -75,21 +81,23 @@ export default function JourneyMap() {
     }
   }, []);
 
-  useEffect(() => {
-    const handleConnect = () => {
-      console.log("✅ Connected to server:", socket.id);
-    };
-const handleMilestoneCreated = () => {
-  fetchMilestones();
-};
-    socket.on("connect", handleConnect);
-    socket.on("milestoneCreated", handleMilestoneCreated);
+ useEffect(() => {
+  const handleConnect = () => {
+    console.log("✅ Connected to server:", socket.id);
+  };
 
-    return () => {
-      socket.off("connect", handleConnect);
-      socket.off("milestoneCreated", handleMilestoneCreated);
-    };
-  }, []);
+  const handleMilestoneCreated = () => {
+    fetchMilestones();
+  };
+
+  socket.on("connect", handleConnect);
+  socket.on("milestoneCreated", handleMilestoneCreated);
+
+  return () => {
+    socket.off("connect", handleConnect);
+    socket.off("milestoneCreated", handleMilestoneCreated);
+  };
+}, [fetchMilestones]);
 
   useEffect(() => {
     fetchMilestones();
@@ -105,7 +113,15 @@ const handleMilestoneCreated = () => {
 
   return (
     <div className="h-[700px] w-full text-black">
-      <ReactFlow nodes={nodes} edges={edges} fitView>
+      <ReactFlow
+  nodes={nodes}
+  edges={edges}
+  fitView
+  onNodeClick={(_event, node) => {
+    const milestone = node.data.milestone as Milestone;
+    onMilestoneSelect(milestone);
+  }}
+>
         <Background />
         <Controls />
         <MiniMap />
