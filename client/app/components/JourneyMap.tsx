@@ -49,7 +49,7 @@ export default function JourneyMap({
             y: index % 2 === 0 ? 100 : 260,
           },
           data: {
-            
+            label: milestone.title,
             milestone,
           },
         })
@@ -129,3 +129,6 @@ export default function JourneyMap({
     </div>
   );
 }
+
+
+

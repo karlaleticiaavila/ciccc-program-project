@@ -5,7 +5,7 @@ import Hero from "./components/Hero";
 import CreateMilestoneForm from "./components/CreateMilestoneForm";
 import JourneyMap from "./components/JourneyMap";
 import type { Milestone } from "../lib/types/milestone";
-import MilestoneCard from "./components/MiestoneCard";
+import MilestoneCard from "./components/MilestoneCard";
 
 export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);

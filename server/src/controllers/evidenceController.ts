@@ -124,3 +124,21 @@ export const deleteEvidence = async (
     });
   }
 };
+
+export const getEvidenceByMilestone = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const evidence = await Evidence.find({
+      milestoneId: req.params.milestoneId,
+    });
+
+    res.status(200).json(evidence);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching evidence by milestone",
+      error,
+    });
+  }
+};
