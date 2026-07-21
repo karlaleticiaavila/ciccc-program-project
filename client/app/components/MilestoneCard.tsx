@@ -26,13 +26,12 @@ export default function MilestoneCard({
   milestone,
 }: MilestoneCardProps) {
 const [evidences, setEvidences] = useState<Evidence[]>([]);
-useEffect(() => {
-  if (!milestone) {
-    setEvidences([]);
-    return;
-  }
 
   const fetchEvidence = async () => {
+    if (!milestone) {
+      setEvidences([]);
+      return;
+    }
     try {
       const response = await fetch(
         `http://localhost:5000/api/evidence/milestone/${milestone._id}`
@@ -43,13 +42,20 @@ useEffect(() => {
       }
 
       const data: Evidence[] = await response.json();
-      console.log(data);
+      
       setEvidences(data);
     } catch (error) {
       console.error("Error fetching evidence:", error);
       setEvidences([]);
     }
   };
+
+
+useEffect(() => {
+  if (!milestone) {
+    setEvidences([]);
+    return;
+  }
 
   fetchEvidence();
 }, [milestone]);
@@ -106,7 +112,9 @@ if (!milestone) {
     </div>
   )}
 </div>
+<CreateEvidenceForm milestoneId={milestone._id} onEvidenceCreated={fetchEvidence}/>
     </div>
-  );
+
+);
 }
 

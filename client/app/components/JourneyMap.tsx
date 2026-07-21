@@ -1,18 +1,19 @@
 "use client";
 import type { Milestone } from "../../lib/types/milestone";
 import { useCallback, useEffect, useState } from "react";
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  MiniMap,
+import {  ReactFlow,Background,Controls,MiniMap,applyNodeChanges,
   type Node,
   type Edge,
+  type NodeChange,
 } from "@xyflow/react";
 import { socket } from "../../lib/socket";
-
 import "@xyflow/react/dist/style.css";
+import CustomNode from "./CustomNode";
 
+
+const nodeTypes = {
+  milestone: CustomNode,
+};  
 type JourneyMapProps = {
   onMilestoneSelect: (milestone: Milestone) => void;
 };
@@ -24,7 +25,16 @@ export default function JourneyMap({
   const [edges, setEdges] = useState<Edge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
   
+const handleNodesChange = useCallback(
+  (changes: NodeChange[]) => {
+    setNodes((currentNodes) =>
+      applyNodeChanges(changes, currentNodes)
+    );
+  },
+  []
+);
 
   const fetchMilestones = useCallback(async () => {
     try {
@@ -44,13 +54,14 @@ export default function JourneyMap({
       const milestoneNodes: Node[] = data.map(
         (milestone, index) => ({
           id: milestone._id,
+          type: "milestone",
           position: {
             x: index * 350,
             y: index % 2 === 0 ? 100 : 260,
           },
           data: {
-            label: milestone.title,
-            milestone,
+            
+            milestone
           },
         })
       );
@@ -114,6 +125,7 @@ export default function JourneyMap({
   return (
     <div className="h-[700px] w-full text-black">
       <ReactFlow
+      onNodesChange={handleNodesChange}
   nodes={nodes}
   edges={edges}
   fitView
@@ -121,6 +133,7 @@ export default function JourneyMap({
     const milestone = node.data.milestone as Milestone;
     onMilestoneSelect(milestone);
   }}
+  nodeTypes={nodeTypes}
 >
         <Background />
         <Controls />
