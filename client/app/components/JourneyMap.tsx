@@ -1,7 +1,7 @@
 "use client";
 import type { Milestone } from "../../lib/types/milestone";
 import { useCallback, useEffect, useState } from "react";
-import {  ReactFlow,Background,Controls,MiniMap,applyNodeChanges,
+import {  ReactFlow,Background,Controls,applyNodeChanges,
   type Node,
   type Edge,
   type NodeChange,
@@ -56,8 +56,8 @@ const handleNodesChange = useCallback(
           id: milestone._id,
           type: "milestone",
           position: {
-            x: index * 350,
-            y: index % 2 === 0 ? 100 : 260,
+            x: index * 200,
+            y: index % 2 === 0 ? 50 : 260,
           },
           data: {
             
@@ -76,6 +76,10 @@ const handleNodesChange = useCallback(
             source: previousMilestone._id,
             target: milestone._id,
             animated: true,
+            style: {
+              stroke: "#a08e9e",
+              strokeWidth: 1.2,
+            },
           };
         });
 
@@ -123,25 +127,41 @@ const handleNodesChange = useCallback(
   }
 
   return (
-    <div className="h-[700px] w-full text-black">
-      <ReactFlow
-      onNodesChange={handleNodesChange}
-  nodes={nodes}
-  edges={edges}
-  fitView
-  onNodeClick={(_event, node) => {
-    const milestone = node.data.milestone as Milestone;
-    onMilestoneSelect(milestone);
-  }}
-  nodeTypes={nodeTypes}
->
-        <Background />
-        <Controls />
-        <MiniMap />
-      </ReactFlow>
+  <section className="bg-[#black] px-4 py-20 md:px-8">
+    <div className="mx-auto max-w-[1500px]">
+      <div className="mb-6">
+  <p className="text-xs uppercase tracking-[0.3em] text-black/45">
+    Your Journey
+  </p>
+
+  <p className="mt-2 text-sm text-black/55">
+    Drag, rearrange and explore the moments that shaped you.
+  </p>
+</div>
+
+      <div className="h-[500px] w-full overflow-hidden rounded-[32px] border border-black/10 bg-[#black] text-black">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodesChange={handleNodesChange}
+          fitView
+          nodesDraggable
+          panOnDrag
+          zoomOnScroll
+          zoomOnPinch
+          onNodeClick={(_event, node) => {
+            const milestone = node.data.milestone as Milestone;
+            onMilestoneSelect(milestone);
+          }}
+        >
+          <Background gap={34} size={1} />
+          <Controls />
+          
+        </ReactFlow>
+      </div>
     </div>
-  );
+  </section>
+);
+
 }
-
-
-
