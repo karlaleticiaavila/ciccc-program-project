@@ -8,6 +8,7 @@ import type { Milestone } from "../lib/types/milestone";
 import MilestoneCard from "./components/MilestoneCard";
 import Mission from "./components/Mission";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -29,7 +30,10 @@ export default function Home() {
     setSelectedMilestone(milestone);
   }}
 />
-<MilestoneCard milestone={selectedMilestone} />
+<MilestoneCard milestone={selectedMilestone}
+onClose={() => setSelectedMilestone(null)} />
+<Footer />
     </main>
+    
   );
 }

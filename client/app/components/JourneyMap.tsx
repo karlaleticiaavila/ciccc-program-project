@@ -57,7 +57,7 @@ const handleNodesChange = useCallback(
           type: "milestone",
           position: {
             x: index * 200,
-            y: index % 2 === 0 ? 50 : 260,
+            y: index % 2 === 0 ? 50 : 90,
           },
           data: {
             
