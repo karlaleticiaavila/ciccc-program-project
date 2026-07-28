@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
+  googleId?: string;
   name: string;
   email: string;
   role: "user" | "mentor" | "recruiter";
@@ -11,6 +12,11 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>(
   {
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     name: {
       type: String,
       required: true,
