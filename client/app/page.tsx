@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Hero from "./components/Hero";
 import CreateMilestoneForm from "./components/CreateMilestoneForm";
 import JourneyMap from "./components/JourneyMap";
@@ -20,10 +20,33 @@ export default function Home() {
       <Hero onOpenForm={() => setIsFormOpen(true)} />
 
       {isFormOpen && (
-        <CreateMilestoneForm
-          onMilestoneCreated={() => setIsFormOpen(false)}
-        />
-      )}
+  <div className="fixed inset-0 z-[100]">
+    <button
+      type="button"
+      aria-label="Close milestone form"
+      onClick={() => setIsFormOpen(false)}
+      className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+    />
+
+    <aside
+      className="
+        absolute
+        left-0
+        top-0
+        h-full
+        w-full
+        max-w-xl
+        animate-[slideInLeft_0.45s_ease-out]
+        shadow-2xl
+      "
+    >
+      <CreateMilestoneForm
+        onClose={() => setIsFormOpen(false)}
+        onMilestoneCreated={() => setIsFormOpen(false)}
+      />
+    </aside>
+  </div>
+)}
 <Mission />
       <JourneyMap
   onMilestoneSelect={(milestone) => {

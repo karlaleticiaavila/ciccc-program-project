@@ -63,6 +63,31 @@ export default function MilestoneCard({
     return null;
   }
 /////
+
+const handleDelete = async () => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this milestone?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/milestones/${milestone._id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Could not delete milestone");
+    }
+
+    onClose();
+  } catch (error) {
+    console.error(error);
+  }
+};
 return (
   <>
     {/* Fondo suave detrás del drawer */}
@@ -125,6 +150,25 @@ return (
         >
           ×
         </button>
+
+        <button
+  type="button"
+  onClick={handleDelete}
+  className="
+    rounded-full
+    border
+    border-red-300
+    px-4
+    py-2
+    text-sm
+    text-red-600
+    transition
+    hover:bg-red-600
+    hover:text-white
+  "
+>
+  Delete
+</button>
       </div>
 
       {/* Información del milestone */}

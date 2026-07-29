@@ -49,25 +49,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const data = await response.json();
-
-        console.log("MongoDB user synchronized:", data.user._id);
-
+        user.id = data.user._id;
+        console.log("User synced successfully:", data.user);
         return true;
+
       } catch (error) {
         console.error("Unable to connect to Express:", error);
         return false;
       }
     },
 
-    async jwt({ token, account }) {
+    async jwt({ token, user, account }) {
       if (account?.providerAccountId) {
         token.googleId = account.providerAccountId;
       }
-
+if (user?.id) {
+        token.mongoUserId = user.id;
+      }
       return token;
     },
 
-    async session({ session }) {
+    async session({ session, token }) {
+      if (token.googleId) {
+        session.user.googleId = token.googleId;
+      }
+      if (token.mongoUserId) {
+        session.user.id = token.mongoUserId;
+      }
       return session;
     },
   },
