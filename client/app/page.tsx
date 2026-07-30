@@ -14,6 +14,39 @@ export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
 
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+const [isLoadingMilestones, setIsLoadingMilestones] = useState(true);
+const [milestonesError, setMilestonesError] = useState("");
+const fetchMilestones = useCallback(async () => {
+  try {
+    setIsLoadingMilestones(true);
+    setMilestonesError("");
+
+    const response = await fetch(
+      "http://localhost:5000/api/milestones"
+    );
+
+    if (!response.ok) {
+      throw new Error("Could not load milestones");
+    }
+
+    const data: Milestone[] = await response.json();
+    setMilestones(data);
+  } catch (error) {
+    setMilestonesError(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong"
+    );
+  } finally {
+    setIsLoadingMilestones(false);
+  }
+}, []);
+
+useEffect(() => {
+  fetchMilestones();
+}, [fetchMilestones]);
+
   return (
    <main className="min-h-screen bg-[#FCFAF8] ">
     <Navbar />
@@ -42,19 +75,24 @@ export default function Home() {
     >
       <CreateMilestoneForm
         onClose={() => setIsFormOpen(false)}
-        onMilestoneCreated={() => setIsFormOpen(false)}
+        onMilestoneCreated={async () => {
+          await fetchMilestones();
+          setIsFormOpen(false);
+        }}
       />
     </aside>
   </div>
 )}
 <Mission />
       <JourneyMap
-  onMilestoneSelect={(milestone) => {
-    setSelectedMilestone(milestone);
-  }}
-/>
+        milestones={milestones}
+        isLoading={isLoadingMilestones}
+        error={milestonesError}
+        onMilestoneSelect={(milestone) => setSelectedMilestone(milestone)}
+      />
 <MilestoneCard milestone={selectedMilestone}
-onClose={() => setSelectedMilestone(null)} />
+onClose={() => setSelectedMilestone(null)}
+onMilestoneDeleted={fetchMilestones} />
 <Footer />
     </main>
     

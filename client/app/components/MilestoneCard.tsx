@@ -22,11 +22,13 @@ type Evidence = {
 type MilestoneCardProps = {
   milestone: Milestone | null;
   onClose: () => void;
+  onMilestoneDeleted: () => Promise<void>;
 };
 
 export default function MilestoneCard({
   milestone,
-  onClose
+  onClose,
+  onMilestoneDeleted,
 }: MilestoneCardProps) {
   const [evidences, setEvidences] = useState<Evidence[]>([]);
   const [isEvidenceFormOpen, setIsEvidenceFormOpen] = useState(false);
@@ -82,8 +84,10 @@ const handleDelete = async () => {
     if (!response.ok) {
       throw new Error("Could not delete milestone");
     }
-
+    await onMilestoneDeleted();
     onClose();
+
+  
   } catch (error) {
     console.error(error);
   }
