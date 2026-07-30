@@ -6,7 +6,6 @@ import {  ReactFlow,Background,Controls,applyNodeChanges,
   type Edge,
   type NodeChange,
 } from "@xyflow/react";
-import { socket } from "../../lib/socket";
 import "@xyflow/react/dist/style.css";
 import CustomNode from "./CustomNode";
 

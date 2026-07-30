@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Milestone } from "../../lib/types/milestone";
 import CreateEvidenceForm from "./CreateEvidenceForm";
+import EditMilestoneForm from "./EditMilestoneForm";
 
 type Evidence = {
   _id: string;
@@ -23,16 +24,18 @@ type MilestoneCardProps = {
   milestone: Milestone | null;
   onClose: () => void;
   onMilestoneDeleted: () => Promise<void>;
+  onMilestoneUpdated: () => Promise<void>;
 };
 
 export default function MilestoneCard({
   milestone,
   onClose,
   onMilestoneDeleted,
+  onMilestoneUpdated,
 }: MilestoneCardProps) {
   const [evidences, setEvidences] = useState<Evidence[]>([]);
   const [isEvidenceFormOpen, setIsEvidenceFormOpen] = useState(false);
-
+const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const fetchEvidence = useCallback(async () => {
     if (!milestone) {
       setEvidences([]);
@@ -173,6 +176,24 @@ return (
 >
   Delete
 </button>
+
+<button
+  type="button"
+  onClick={() => setIsEditFormOpen(true)}
+  className="
+    rounded-full
+    border
+    border-black/20
+    px-4
+    py-2
+    text-sm
+    transition
+    hover:bg-black
+    hover:text-white
+  "
+>
+  Edit
+</button>
       </div>
 
       {/* Información del milestone */}
@@ -279,19 +300,36 @@ return (
         </div>
       )}
 
-      {/* Evidence form */}
-      {isEvidenceFormOpen && (
-        <div className="mt-4 border-t border-black/10 pt-8">
-          <CreateEvidenceForm
-            milestoneId={milestone._id}
-            onEvidenceCreated={async () => {
-              await fetchEvidence();
-              setIsEvidenceFormOpen(false);
-            }}
-          />
-        </div>
-      )}
-    </aside>
+     {/* Evidence form */}
+{isEditFormOpen ? (
+  <EditMilestoneForm
+    milestone={milestone}
+    onMilestoneUpdated={async () => {
+      await onMilestoneUpdated();
+      setIsEditFormOpen(false);
+    }}
+    onClose={() => setIsEditFormOpen(false)}
+  />
+) : (
+  <>
+    {/* Información del milestone */}
+    <div className="py-9">
+      ...
+    </div>
+
+    {/* Evidence header */}
+    ...
+
+    {/* Evidence content */}
+    ...
+
+    {/* Evidence form */}
+    ...
+  </>
+)}
+
+
+</aside>
   </>
 );
 }

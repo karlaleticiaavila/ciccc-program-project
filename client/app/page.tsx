@@ -92,7 +92,9 @@ useEffect(() => {
       />
 <MilestoneCard milestone={selectedMilestone}
 onClose={() => setSelectedMilestone(null)}
-onMilestoneDeleted={fetchMilestones} />
+onMilestoneDeleted={fetchMilestones} 
+onMilestoneUpdated={fetchMilestones} /> 
+
 <Footer />
     </main>
     
