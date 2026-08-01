@@ -1,7 +1,25 @@
 
 import { Request, Response } from "express";
 import User from "../models/User.js";
+import jwt from "jsonwebtoken";
 
+const createAccessToken = (userId: string): string => {
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
+  return jwt.sign(
+    {
+      userId,
+    },
+    jwtSecret,
+    {
+      expiresIn: "1h",
+    }
+  );
+};
 export const createUser = async (
   req: Request,
   res: Response
@@ -60,9 +78,14 @@ export const syncGoogleUser = async (
 
       await user.save();
 
+      const accessToken = createAccessToken(
+        user._id.toString()
+      );
+
       res.status(200).json({
         message: "User already exists",
         user,
+        accessToken,
       });
 
       return;
@@ -76,19 +99,23 @@ export const syncGoogleUser = async (
       role: "user",
     });
 
+    const accessToken = createAccessToken(
+      user._id.toString()
+    );
+
     res.status(201).json({
       message: "User created successfully",
       user,
+      accessToken,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error syncing Google user:", error);
 
     res.status(500).json({
       message: "Error syncing Google user",
     });
   }
 };
-
 
 export const getUsers = async (
   _req: Request,

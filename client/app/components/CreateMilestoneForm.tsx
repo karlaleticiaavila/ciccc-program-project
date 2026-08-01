@@ -38,13 +38,14 @@ export default function CreateMilestoneForm({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify({
             title,
             description,
             date,
             category,
-            userId,
+            
           }),
         }
       );

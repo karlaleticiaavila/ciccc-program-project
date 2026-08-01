@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-    secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
+
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID as string,
@@ -11,17 +12,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
 
   callbacks: {
-    async signIn({ user, account }) {
+    async jwt({ token, account }) {
+      // Solo se ejecuta al iniciar sesión con Google.
       if (
-        account?.provider !== "google" ||
-        !account.providerAccountId ||
-        !user.name ||
-        !user.email
+        account?.provider === "google" &&
+        account.providerAccountId &&
+        token.name &&
+        token.email
       ) {
-        return false;
-      }
-
-      try {
         const response = await fetch(
           `${process.env.BACKEND_URL}/api/users/sync`,
           {
@@ -31,51 +29,46 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
             body: JSON.stringify({
               googleId: account.providerAccountId,
-              name: user.name,
-              email: user.email,
-              profilePicture: user.image ?? "",
+              name: token.name,
+              email: token.email,
+              profilePicture:
+                typeof token.picture === "string"
+                  ? token.picture
+                  : "",
             }),
           }
         );
 
         if (!response.ok) {
-          console.error(
-            "User sync failed:",
-            response.status,
-            await response.text()
-          );
-
-          return false;
+          const message = await response.text();
+          throw new Error(`User sync failed: ${message}`);
         }
 
         const data = await response.json();
-        user.id = data.user._id;
-        console.log("User synced successfully:", data.user);
-        return true;
 
-      } catch (error) {
-        console.error("Unable to connect to Express:", error);
-        return false;
-      }
-    },
-
-    async jwt({ token, user, account }) {
-      if (account?.providerAccountId) {
         token.googleId = account.providerAccountId;
+        token.mongoUserId = data.user._id;
+        token.accessToken = data.accessToken;
       }
-if (user?.id) {
-        token.mongoUserId = user.id;
-      }
+
       return token;
     },
 
     async session({ session, token }) {
-      if (token.googleId) {
-        session.user.googleId = token.googleId;
+      if (session.user) {
+        if (typeof token.mongoUserId === "string") {
+          session.user.id = token.mongoUserId;
+        }
+
+        if (typeof token.googleId === "string") {
+          session.user.googleId = token.googleId;
+        }
       }
-      if (token.mongoUserId) {
-        session.user.id = token.mongoUserId;
+
+      if (typeof token.accessToken === "string") {
+        session.accessToken = token.accessToken;
       }
+
       return session;
     },
   },

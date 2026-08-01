@@ -1,12 +1,21 @@
 import express from "express";
-import { createMilestone, getMilestones,getMilestoneById,updateMilestone,deleteMilestone  } from "../controllers/milestoneController.js";
+
+import {
+  createMilestone,
+  getMilestones,
+  getMilestoneById,
+  updateMilestone,
+  deleteMilestone,
+} from "../controllers/milestoneController.js";
+
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", createMilestone);
-router.get("/", getMilestones);
-router.get("/:id", getMilestoneById);
-router.put("/:id", updateMilestone);
-router.delete("/:id", deleteMilestone);
+router.post("/", authMiddleware, createMilestone);
+router.get("/", authMiddleware, getMilestones);
+router.get("/:id", authMiddleware, getMilestoneById);
+router.put("/:id", authMiddleware, updateMilestone);
+router.delete("/:id", authMiddleware, deleteMilestone);
 
 export default router;

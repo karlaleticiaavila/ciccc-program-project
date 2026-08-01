@@ -1,13 +1,23 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+
+import type { AuthenticatedRequest } from "../middleware/authMiddleware.js";
 import Milestone from "../models/Milestone.js";
 import { io } from "../server.js";
 
 export const createMilestone = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { title, description, date, category, userId } = req.body;
+    const userId = req.user?.userId;
+    const { title, description, date, category } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
 
     const milestone = await Milestone.create({
       title,
@@ -24,105 +34,174 @@ export const createMilestone = async (
       milestone,
     });
   } catch (error) {
+    console.error("Error creating milestone:", error);
+
     res.status(500).json({
       message: "Error creating milestone",
-      error,
     });
   }
 };
 
 export const getMilestones = async (
-  _req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const milestones = await Milestone.find().populate("userId");
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const milestones = await Milestone.find({
+      userId,
+    }).sort({ date: 1 });
 
     res.status(200).json(milestones);
   } catch (error) {
+    console.error("Error getting milestones:", error);
+
     res.status(500).json({
       message: "Error getting milestones",
-      error,
     });
   }
 };
 
 export const getMilestoneById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const milestone = await Milestone.findById(req.params.id);
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const milestone = await Milestone.findOne({
+      _id: req.params.id,
+      userId,
+    });
 
     if (!milestone) {
       res.status(404).json({
-        message: "Milestone not found",
+        message:
+          "Milestone not found or you do not have permission",
       });
       return;
     }
 
     res.status(200).json(milestone);
   } catch (error) {
+    console.error("Error getting milestone:", error);
+
     res.status(500).json({
       message: "Error getting milestone",
-      error,
     });
   }
 };
 
 export const updateMilestone = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const milestone = await Milestone.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+    const userId = req.user?.userId;
+    const { title, description, date, category } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const milestone = await Milestone.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId,
+      },
+      {
+        title,
+        description,
+        date,
+        category,
+      },
       {
         new: true,
+        runValidators: true,
       }
     );
 
     if (!milestone) {
       res.status(404).json({
-        message: "Milestone not found",
+        message:
+          "Milestone not found or you do not have permission",
       });
       return;
     }
+
+    io.emit("milestoneUpdated", milestone);
 
     res.status(200).json({
       message: "Milestone updated successfully",
       milestone,
     });
   } catch (error) {
+    console.error("Error updating milestone:", error);
+
     res.status(500).json({
       message: "Error updating milestone",
-      error,
     });
   }
 };
 
 export const deleteMilestone = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const milestone = await Milestone.findByIdAndDelete(req.params.id);
+    const userId = req.user?.userId;
 
-    if (!milestone) {
-      res.status(404).json({
-        message: "Milestone not found",
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
       });
       return;
     }
+
+    const milestone = await Milestone.findOneAndDelete({
+      _id: req.params.id,
+      userId,
+    });
+
+    if (!milestone) {
+      res.status(404).json({
+        message:
+          "Milestone not found or you do not have permission",
+      });
+      return;
+    }
+
+    io.emit("milestoneDeleted", {
+      milestoneId: milestone._id,
+      userId,
+    });
 
     res.status(200).json({
       message: "Milestone deleted successfully",
     });
   } catch (error) {
+    console.error("Error deleting milestone:", error);
+
     res.status(500).json({
       message: "Error deleting milestone",
-      error,
     });
   }
 };
