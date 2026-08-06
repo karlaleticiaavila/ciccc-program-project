@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 
 import type { Milestone } from "../lib/types/milestone";
 import CreateMilestoneForm from "./components/CreateMilestoneForm";
+import Dashboard from "./components/Dashboard";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 import JourneyMap from "./components/JourneyMap";
@@ -16,12 +17,15 @@ export default function Home() {
   const { data: session, status } = useSession();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+
   const [selectedMilestone, setSelectedMilestone] =
     useState<Milestone | null>(null);
 
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+
   const [isLoadingMilestones, setIsLoadingMilestones] =
     useState(true);
+
   const [milestonesError, setMilestonesError] = useState("");
 
   const fetchMilestones = useCallback(async () => {
@@ -33,6 +37,7 @@ export default function Home() {
     }
 
     try {
+      setIsLoadingMilestones(true);
       setMilestonesError("");
 
       const response = await fetch(
@@ -47,7 +52,9 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Could not load milestones");
+        throw new Error(
+          data.message || "Could not load milestones"
+        );
       }
 
       setMilestones(data);
@@ -83,19 +90,50 @@ export default function Home() {
     void fetchMilestones();
   }, [status, fetchMilestones]);
 
+  const openMilestoneForm = () => {
+    setIsFormOpen(true);
+  };
+
+  const closeMilestoneForm = () => {
+    setIsFormOpen(false);
+  };
+
   return (
-    <main className="min-h-screen bg-[#FCFAF8]">
+   <main className="min-h-screen overflow-x-hidden bg-[#143f46] text-[#f3eee2]">
       <Navbar />
 
-      <Hero onOpenForm={() => setIsFormOpen(true)} />
+      {status === "authenticated" && session ? (
+        <>
+          <Dashboard
+            session={session}
+            milestoneCount={milestones.length}
+            onOpenForm={openMilestoneForm}
+          />
+
+          <JourneyMap
+            milestones={milestones}
+            isLoading={isLoadingMilestones}
+            error={milestonesError}
+            onMilestoneSelect={(milestone) => {
+              setSelectedMilestone(milestone);
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <Hero onOpenForm={openMilestoneForm} />
+
+          <Mission />
+        </>
+      )}
 
       {isFormOpen && (
         <div className="fixed inset-0 z-[100]">
           <button
             type="button"
             aria-label="Close milestone form"
-            onClick={() => setIsFormOpen(false)}
-            className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+            onClick={closeMilestoneForm}
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
           />
 
           <aside
@@ -107,34 +145,28 @@ export default function Home() {
               w-full
               max-w-xl
               animate-[slideInLeft_0.45s_ease-out]
+              overflow-y-auto
+              bg-[#F8F5EF]
+              text-black
               shadow-2xl
             "
           >
             <CreateMilestoneForm
-              onClose={() => setIsFormOpen(false)}
+              onClose={closeMilestoneForm}
               onMilestoneCreated={async () => {
                 await fetchMilestones();
-                setIsFormOpen(false);
+                closeMilestoneForm();
               }}
             />
           </aside>
         </div>
       )}
 
-      <Mission />
-
-      <JourneyMap
-        milestones={milestones}
-        isLoading={isLoadingMilestones}
-        error={milestonesError}
-        onMilestoneSelect={(milestone) => {
-          setSelectedMilestone(milestone);
-        }}
-      />
-
       <MilestoneCard
         milestone={selectedMilestone}
-        onClose={() => setSelectedMilestone(null)}
+        onClose={() => {
+          setSelectedMilestone(null);
+        }}
         onMilestoneDeleted={fetchMilestones}
         onMilestoneUpdated={fetchMilestones}
       />
