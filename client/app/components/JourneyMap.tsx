@@ -12,7 +12,6 @@ import {
   Background,
   Controls,
   applyNodeChanges,
-  MarkerType,
   type Node,
   type Edge,
   type NodeChange,
@@ -83,7 +82,7 @@ export default function JourneyMap({
           position:
             existingNode?.position ?? {
               x: index * 410,
-              y: index % 2 === 0 ? 70 : 285,
+              y: index % 2 === 0 ? 75 : 290,
             },
 
           data: {
@@ -97,7 +96,8 @@ export default function JourneyMap({
     const timelineEdges: Edge[] = sortedMilestones
       .slice(1)
       .map((milestone, index) => {
-        const previousMilestone = sortedMilestones[index];
+        const previousMilestone =
+          sortedMilestones[index];
 
         return {
           id: `edge-${previousMilestone._id}-${milestone._id}`,
@@ -106,15 +106,8 @@ export default function JourneyMap({
           animated: true,
 
           style: {
-            stroke: "rgba(244, 240, 232, 0.58)",
-            strokeWidth: 1.4,
-          },
-
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 14,
-            height: 14,
-            color: "rgba(244, 240, 232, 0.58)",
+            stroke: "rgba(240, 160, 135, 0.82)",
+            strokeWidth: 1.7,
           },
         };
       });
@@ -126,21 +119,19 @@ export default function JourneyMap({
     return (
       <section
         id="journey-map"
-        className="border-t border-white/10 bg-[#090909] px-5 py-24 md:px-8 md:py-32"
+        className="relative overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:px-8 md:py-32"
       >
-        <div className="mx-auto max-w-[1500px]">
-          <div className="relative flex min-h-[480px] items-center justify-center overflow-hidden border border-white/10 bg-[#111]">
-            <img
-              src="/hero-forest-chair.jpg"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-20"
-            />
+        <JourneyGlow />
 
-            <div className="absolute inset-0 bg-black/70" />
+        <div className="relative mx-auto max-w-[1500px]">
+          <div className="flex min-h-[420px] items-center justify-center border border-[#f5efe3]/15 bg-[#174a50]">
+            <div className="text-center">
+              <span className="mx-auto block h-2 w-2 animate-pulse rounded-full bg-[#f0a087]" />
 
-            <p className="relative text-xs uppercase tracking-[0.3em] text-white/50">
-              Loading your journey...
-            </p>
+              <p className="mt-5 text-[10px] uppercase tracking-[0.32em] text-[#f5efe3]/55">
+                Loading your journey
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -151,16 +142,18 @@ export default function JourneyMap({
     return (
       <section
         id="journey-map"
-        className="border-t border-white/10 bg-[#090909] px-5 py-24 md:px-8 md:py-32"
+        className="relative overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:px-8 md:py-32"
       >
-        <div className="mx-auto max-w-[1500px]">
-          <div className="flex min-h-[360px] items-center justify-center border border-red-300/15 bg-red-950/20 px-6 text-center">
+        <JourneyGlow />
+
+        <div className="relative mx-auto max-w-[1500px]">
+          <div className="flex min-h-[340px] items-center justify-center border border-[#f0a087]/30 bg-[#713f3a]/25 px-6 text-center">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-red-200/50">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#f0a087]">
                 Journey unavailable
               </p>
 
-              <p className="mt-5 text-base text-red-100/80">
+              <p className="mt-5 max-w-lg text-base leading-7 text-[#f5efe3]/75">
                 {error}
               </p>
             </div>
@@ -174,43 +167,47 @@ export default function JourneyMap({
     return (
       <section
         id="journey-map"
-        className="border-t border-white/10 bg-[#090909] px-5 py-24 md:px-8 md:py-32"
+        className="relative overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:px-8 md:py-32"
       >
-        <div className="mx-auto max-w-[1500px]">
+        <JourneyGlow />
+
+        <div className="relative mx-auto max-w-[1500px]">
           <div className="mb-10 max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.34em] text-white/40">
+            <p className="text-xs uppercase tracking-[0.34em] text-[#f0a087]">
               Your journey
             </p>
 
-            <h2 className="mt-6 max-w-4xl font-serif text-5xl leading-[0.94] tracking-[-0.045em] text-[#F4F0E8] md:text-7xl">
+            <h2 className="mt-6 max-w-4xl font-serif text-5xl leading-[0.94] tracking-[-0.045em] md:text-7xl">
               Every archive begins with one moment.
             </h2>
           </div>
 
-          <div className="relative min-h-[520px] overflow-hidden border border-white/10 bg-black">
+          <div className="relative min-h-[520px] overflow-hidden border border-[#f5efe3]/15">
             <img
               src="/hero-forest-chair.jpg"
               alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-40"
+              className="absolute inset-0 h-full w-full object-cover"
             />
 
-            <div className="absolute inset-0 bg-black/65" />
+            <div className="absolute inset-0 bg-[#123b40]/30" />
 
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#102f35]/90 via-[#123b40]/55 to-transparent" />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/70 via-transparent to-transparent" />
 
             <div className="relative flex min-h-[520px] items-end px-8 py-10 md:px-14 md:py-14">
-              <div className="max-w-lg">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/45">
-                  Chapter 001
+              <div className="max-w-xl">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#f0a087]">
+                  Your first chapter
                 </p>
 
-                <h3 className="mt-5 font-serif text-4xl leading-tight text-[#F4F0E8] md:text-5xl">
-                  Your story has space to begin.
+                <h3 className="mt-5 font-serif text-4xl leading-[0.98] tracking-[-0.04em] md:text-6xl">
+                  Make space for who you are becoming.
                 </h3>
 
-                <p className="mt-6 max-w-md text-base leading-7 text-white/60">
-                  Add a milestone from your dashboard. Your first chapter will
-                  appear here with its date, category and evidence.
+                <p className="mt-6 max-w-md text-base leading-7 text-[#f5efe3]/68">
+                  Add your first milestone from the dashboard. Its story,
+                  evidence and date will begin your personal timeline.
                 </p>
               </div>
             </div>
@@ -223,40 +220,36 @@ export default function JourneyMap({
   return (
     <section
       id="journey-map"
-      className="border-t border-white/10 bg-[#090909] px-5 py-24 md:px-8 md:py-32"
+      className="relative overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:px-8 md:py-32"
     >
-      <div className="mx-auto max-w-[1500px]">
+      <JourneyGlow />
+
+      <div className="relative mx-auto max-w-[1500px]">
         <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div className="max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.34em] text-white/40">
+            <p className="text-xs uppercase tracking-[0.34em] text-[#f0a087]">
               Your journey
             </p>
 
-            <h2 className="mt-6 font-serif text-5xl leading-[0.94] tracking-[-0.045em] text-[#F4F0E8] md:text-7xl">
+            <h2 className="mt-6 font-serif text-5xl leading-[0.94] tracking-[-0.045em] md:text-7xl">
               The moments that shaped you.
             </h2>
           </div>
 
-          <div className="max-w-sm border-l border-white/15 pl-5">
-            <p className="text-sm leading-6 text-white/45">
-              Move through your timeline, rearrange each chapter and select a
+          <div className="max-w-sm border-l border-[#f5efe3]/20 pl-5">
+            <p className="text-sm leading-6 text-[#f5efe3]/55">
+              Move through your timeline, rearrange each chapter and open a
               milestone to explore its story and evidence.
             </p>
           </div>
         </div>
 
-        <div className="relative h-[640px] w-full overflow-hidden border border-white/10 bg-black">
-          <img
-            src="/hero-forest-chair.jpg"
-            alt=""
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30"
-          />
+        <div className="relative h-[640px] w-full overflow-hidden border border-[#f5efe3]/15 bg-[#174a50]">
+          <div className="pointer-events-none absolute -left-28 -top-28 h-[360px] w-[360px] rounded-full bg-[#79a7b7]/20 blur-[110px]" />
 
-          <div className="pointer-events-none absolute inset-0 bg-black/68" />
+          <div className="pointer-events-none absolute -bottom-32 right-[10%] h-[380px] w-[380px] rounded-full bg-[#e88b72]/15 blur-[120px]" />
 
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/80 via-black/25 to-black/70" />
-
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#255f67]/30 via-transparent to-[#102f35]/55" />
 
           <div className="relative h-full w-full">
             <ReactFlow
@@ -266,7 +259,7 @@ export default function JourneyMap({
               onNodesChange={handleNodesChange}
               fitView
               fitViewOptions={{
-                padding: 0.12,
+                padding: 0.13,
                 minZoom: 0.62,
                 maxZoom: 1,
               }}
@@ -287,9 +280,9 @@ export default function JourneyMap({
               }}
             >
               <Background
-                gap={48}
+                gap={52}
                 size={1}
-                color="rgba(255,255,255,0.12)"
+                color="rgba(245, 239, 227, 0.13)"
               />
 
               <Controls
@@ -298,21 +291,31 @@ export default function JourneyMap({
                   !overflow-hidden
                   !rounded-full
                   !border
-                  !border-white/15
-                  !bg-black/65
-                  !shadow-none
+                  !border-[#f5efe3]/20
+                  !bg-[#123b40]/90
+                  !shadow-[0_12px_40px_rgba(10,35,38,0.25)]
                   !backdrop-blur-xl
                 "
               />
             </ReactFlow>
           </div>
 
-          <div className="pointer-events-none absolute bottom-5 right-6 z-10 hidden items-center gap-3 text-[10px] uppercase tracking-[0.24em] text-white/35 md:flex">
-            <span className="h-px w-10 bg-white/25" />
+          <div className="pointer-events-none absolute bottom-5 right-6 z-10 hidden items-center gap-3 text-[9px] uppercase tracking-[0.26em] text-[#f5efe3]/40 md:flex">
+            <span className="h-px w-10 bg-[#f0a087]/65" />
             Drag · Zoom · Explore
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function JourneyGlow() {
+  return (
+    <>
+      <div className="pointer-events-none absolute -left-40 top-16 h-[420px] w-[420px] rounded-full bg-[#79a7b7]/14 blur-[135px]" />
+
+      <div className="pointer-events-none absolute -right-40 bottom-0 h-[440px] w-[440px] rounded-full bg-[#e88b72]/12 blur-[140px]" />
+    </>
   );
 }

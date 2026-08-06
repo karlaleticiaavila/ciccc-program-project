@@ -1,7 +1,7 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
+import { useSession } from "next-auth/react";
 
 import type { Milestone } from "@/lib/types/milestone";
 
@@ -10,6 +10,14 @@ type EditMilestoneFormProps = {
   onMilestoneUpdated: () => Promise<void>;
   onClose: () => void;
 };
+
+const categorySuggestions = [
+  "Education",
+  "Career",
+  "Creative",
+  "Personal",
+  "Travel",
+];
 
 export default function EditMilestoneForm({
   milestone,
@@ -39,7 +47,9 @@ export default function EditMilestoneForm({
     event.preventDefault();
 
     if (!session?.accessToken) {
-      setMessage("Your session is unavailable. Please sign in again.");
+      setMessage(
+        "Your session is unavailable. Please sign in again."
+      );
       return;
     }
 
@@ -73,7 +83,6 @@ export default function EditMilestoneForm({
       }
 
       await onMilestoneUpdated();
-      onClose();
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -91,58 +100,61 @@ export default function EditMilestoneForm({
       className="
         relative
         w-full
-        max-w-xl
         overflow-hidden
-        rounded-[28px]
+        rounded-[24px]
         border
-        border-white/10
-        bg-[#18221f]
-        p-6
-        text-[#edf0e8]
-        shadow-[0_30px_100px_rgba(0,0,0,0.55)]
-        md:p-8
+        border-[#173f43]/15
+        bg-[#e9e2d4]
+        text-[#173f43]
       "
     >
-      <div className="flex items-start justify-between gap-8 border-b border-white/10 pb-6">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">
-            Edit milestone
-          </p>
+      <header className="border-b border-[#173f43]/12 px-5 py-6 md:px-7">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.32em] text-[#d46f5e]">
+              Edit milestone
+            </p>
 
-          <h2 className="mt-3 font-serif text-4xl leading-none tracking-[-0.04em] text-[#f3f0e8]">
-            Refine this chapter.
-          </h2>
+            <h2 className="mt-4 font-serif text-4xl leading-[0.95] tracking-[-0.04em] md:text-5xl">
+              Refine this chapter.
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close edit milestone form"
+            className="
+              flex
+              h-10
+              w-10
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-[#173f43]/15
+              text-xl
+              text-[#173f43]/55
+              transition
+              hover:border-[#173f43]
+              hover:bg-[#173f43]
+              hover:text-[#f5efe3]
+            "
+          >
+            ×
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close edit milestone form"
-          className="
-            flex
-            h-10
-            w-10
-            shrink-0
-            items-center
-            justify-center
-            rounded-full
-            border
-            border-white/15
-            text-xl
-            text-white/60
-            transition
-            hover:border-white/40
-            hover:bg-white/10
-            hover:text-white
-          "
-        >
-          ×
-        </button>
-      </div>
+        <p className="mt-5 max-w-md text-sm leading-6 text-[#173f43]/58">
+          Update the details of this milestone without losing
+          its evidence or place in your journey.
+        </p>
+      </header>
 
-      <div className="mt-7 space-y-6">
+      <div className="space-y-7 px-5 py-7 md:px-7 md:py-8">
         <label className="block">
-          <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/40">
+          <span className="mb-2 block text-[9px] uppercase tracking-[0.26em] text-[#173f43]/48">
             Title
           </span>
 
@@ -155,23 +167,23 @@ export default function EditMilestoneForm({
             className="
               w-full
               border
-              border-white/12
-              bg-white/[0.04]
+              border-[#173f43]/18
+              bg-[#f7f1e7]
               px-4
               py-3.5
               text-base
-              text-white
+              text-[#173f43]
               outline-none
               transition
-              placeholder:text-white/25
-              focus:border-[#9fb9a7]
-              focus:bg-white/[0.07]
+              focus:border-[#d46f5e]
+              focus:ring-2
+              focus:ring-[#d46f5e]/10
             "
           />
         </label>
 
         <label className="block">
-          <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/40">
+          <span className="mb-2 block text-[9px] uppercase tracking-[0.26em] text-[#173f43]/48">
             Description
           </span>
 
@@ -180,30 +192,30 @@ export default function EditMilestoneForm({
             onChange={(event) =>
               setDescription(event.target.value)
             }
-            rows={5}
+            rows={6}
             className="
               w-full
               resize-none
               border
-              border-white/12
-              bg-white/[0.04]
+              border-[#173f43]/18
+              bg-[#f7f1e7]
               px-4
               py-3.5
               text-base
               leading-7
-              text-white
+              text-[#173f43]
               outline-none
               transition
-              placeholder:text-white/25
-              focus:border-[#9fb9a7]
-              focus:bg-white/[0.07]
+              focus:border-[#d46f5e]
+              focus:ring-2
+              focus:ring-[#d46f5e]/10
             "
           />
         </label>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/40">
+            <span className="mb-2 block text-[9px] uppercase tracking-[0.26em] text-[#173f43]/48">
               Date
             </span>
 
@@ -217,23 +229,23 @@ export default function EditMilestoneForm({
               className="
                 w-full
                 border
-                border-white/12
-                bg-white/[0.04]
+                border-[#173f43]/18
+                bg-[#f7f1e7]
                 px-4
                 py-3.5
                 text-base
-                text-white
+                text-[#173f43]
                 outline-none
                 transition
-                focus:border-[#9fb9a7]
-                focus:bg-white/[0.07]
-                [color-scheme:dark]
+                focus:border-[#d46f5e]
+                focus:ring-2
+                focus:ring-[#d46f5e]/10
               "
             />
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/40">
+            <span className="mb-2 block text-[9px] uppercase tracking-[0.26em] text-[#173f43]/48">
               Category
             </span>
 
@@ -246,49 +258,84 @@ export default function EditMilestoneForm({
               className="
                 w-full
                 border
-                border-white/12
-                bg-white/[0.04]
+                border-[#173f43]/18
+                bg-[#f7f1e7]
                 px-4
                 py-3.5
                 text-base
-                text-white
+                text-[#173f43]
                 outline-none
                 transition
-                placeholder:text-white/25
-                focus:border-[#9fb9a7]
-                focus:bg-white/[0.07]
+                focus:border-[#d46f5e]
+                focus:ring-2
+                focus:ring-[#d46f5e]/10
               "
             />
           </label>
         </div>
+
+        <div className="flex flex-wrap gap-2">
+          {categorySuggestions.map((suggestion) => {
+            const isSelected =
+              category.trim().toLowerCase() ===
+              suggestion.toLowerCase();
+
+            return (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => setCategory(suggestion)}
+                className={`
+                  rounded-full
+                  border
+                  px-3
+                  py-1.5
+                  text-[9px]
+                  uppercase
+                  tracking-[0.16em]
+                  transition
+                  ${
+                    isSelected
+                      ? "border-[#d46f5e] bg-[#d46f5e] text-[#173f43]"
+                      : "border-[#173f43]/16 text-[#173f43]/50 hover:border-[#173f43]/40 hover:text-[#173f43]"
+                  }
+                `}
+              >
+                {suggestion}
+              </button>
+            );
+          })}
+        </div>
+
+        {message && (
+          <p
+            role="alert"
+            className="border border-[#b85f54]/25 bg-[#b85f54]/10 px-4 py-3 text-sm text-[#8e4038]"
+          >
+            {message}
+          </p>
+        )}
       </div>
 
-      {message && (
-        <p
-          role="alert"
-          className="mt-6 border border-red-300/15 bg-red-950/30 px-4 py-3 text-sm text-red-100/80"
-        >
-          {message}
-        </p>
-      )}
-
-      <div className="mt-8 flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-end">
+      <footer className="flex flex-col-reverse gap-3 border-t border-[#173f43]/12 px-5 py-5 sm:flex-row sm:justify-end md:px-7">
         <button
           type="button"
           onClick={onClose}
+          disabled={isSubmitting}
           className="
             rounded-full
             border
-            border-white/15
+            border-[#173f43]/18
             px-6
             py-3
-            text-xs
+            text-[10px]
             uppercase
-            tracking-[0.16em]
-            text-white/60
+            tracking-[0.17em]
+            text-[#173f43]/60
             transition
-            hover:border-white/35
-            hover:text-white
+            hover:border-[#173f43]
+            hover:text-[#173f43]
+            disabled:opacity-50
           "
         >
           Cancel
@@ -299,23 +346,27 @@ export default function EditMilestoneForm({
           disabled={isSubmitting}
           className="
             rounded-full
-            bg-[#d9e2d5]
+            bg-[#d46f5e]
             px-6
             py-3
-            text-xs
-            font-medium
+            text-[10px]
+            font-semibold
             uppercase
-            tracking-[0.16em]
-            text-[#18221f]
+            tracking-[0.17em]
+            text-[#173f43]
+            shadow-[0_10px_28px_rgba(212,111,94,0.2)]
             transition
-            hover:bg-white
+            hover:-translate-y-0.5
+            hover:bg-[#f0a087]
             disabled:cursor-not-allowed
             disabled:opacity-50
           "
         >
-          {isSubmitting ? "Saving..." : "Save changes"}
+          {isSubmitting
+            ? "Saving changes..."
+            : "Save changes"}
         </button>
-      </div>
+      </footer>
     </form>
   );
 }

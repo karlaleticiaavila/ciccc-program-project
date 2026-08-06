@@ -9,14 +9,6 @@ import {
 
 import type { Milestone } from "../../lib/types/milestone";
 
-const journeyImages = [
-  "/hero-graffiti.jpg",
-  "/hero-meadows.jpg",
-  "/hero-forest-chair.jpg",
-  "/hero-sheep.jpg",
-  "/hero-sky.jpg",
-];
-
 type CustomNodeData = {
   milestone: Milestone;
   visualIndex?: number;
@@ -26,6 +18,56 @@ type CustomMilestoneNode = Node<
   CustomNodeData,
   "milestone"
 >;
+
+const categoryStyles: Record<
+  string,
+  {
+    background: string;
+    accent: string;
+    label: string;
+  }
+> = {
+  education: {
+    background:
+      "linear-gradient(135deg, #7aa8b7 0%, #2f7180 55%, #173f43 100%)",
+    accent: "#f5efe3",
+    label: "Education",
+  },
+  career: {
+    background:
+      "linear-gradient(135deg, #e88b72 0%, #bc6658 55%, #713f3a 100%)",
+    accent: "#f5efe3",
+    label: "Career",
+  },
+  creative: {
+    background:
+      "linear-gradient(135deg, #8b8984 0%, #5c6662 50%, #173f43 100%)",
+    accent: "#f5efe3",
+    label: "Creative",
+  },
+  personal: {
+    background:
+      "linear-gradient(135deg, #6f8b4b 0%, #4f6b36 55%, #173d2b 100%)",
+    accent: "#f5efe3",
+    label: "Personal",
+  },
+  travel: {
+    background:
+      "linear-gradient(135deg, #79a7b7 0%, #4a8793 50%, #164b53 100%)",
+    accent: "#f5efe3",
+    label: "Travel",
+  },
+  default: {
+    background:
+      "linear-gradient(135deg, #255f67 0%, #164b53 55%, #123b40 100%)",
+    accent: "#f5efe3",
+    label: "Milestone",
+  },
+};
+
+function normalizeCategory(category?: string) {
+  return category?.trim().toLowerCase() ?? "";
+}
 
 export default function CustomNode({
   data,
@@ -40,8 +82,17 @@ export default function CustomNode({
     ? ""
     : milestoneDate.getFullYear();
 
-  const image =
-    journeyImages[visualIndex % journeyImages.length];
+  const normalizedCategory = normalizeCategory(
+    milestone.category
+  );
+
+  const categoryStyle =
+    categoryStyles[normalizedCategory] ??
+    categoryStyles.default;
+
+  const categoryLabel =
+    milestone.category?.trim() ||
+    categoryStyle.label;
 
   return (
     <article
@@ -52,15 +103,15 @@ export default function CustomNode({
         cursor-pointer
         overflow-hidden
         border
-        border-white/15
-        bg-black
-        text-white
-        shadow-[0_24px_70px_rgba(0,0,0,0.38)]
+        border-[#f5efe3]/15
+        bg-[#123b40]
+        text-[#f5efe3]
+        shadow-[0_24px_65px_rgba(10,40,43,0.28)]
         transition
         duration-500
         hover:-translate-y-2
-        hover:border-white/35
-        hover:shadow-[0_32px_90px_rgba(0,0,0,0.55)]
+        hover:border-[#f5efe3]/35
+        hover:shadow-[0_32px_85px_rgba(10,40,43,0.4)]
       "
     >
       <Handle
@@ -70,45 +121,37 @@ export default function CustomNode({
           !h-3
           !w-3
           !border-2
-          !border-black
-          !bg-[#F4F0E8]
-          !shadow-[0_0_18px_rgba(244,240,232,0.55)]
+          !border-[#174a50]
+          !bg-[#f0a087]
+          !shadow-[0_0_18px_rgba(240,160,135,0.55)]
         "
       />
 
-      <div className="relative h-[180px] overflow-hidden">
-        <img
-          src={image}
-          alt=""
-          className="
-            absolute
-            inset-0
-            h-full
-            w-full
-            object-cover
-            transition
-            duration-700
-            group-hover:scale-110
-          "
-        />
+      <div
+        className="relative h-[170px] overflow-hidden"
+        style={{
+          background: categoryStyle.background,
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/75 via-transparent to-white/5" />
 
-        <div className="absolute inset-0 bg-black/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-white/15" />
+        <div className="absolute -bottom-14 -left-10 h-36 w-36 rounded-full border border-white/10" />
+
+        <p className="absolute right-4 top-4 text-[9px] uppercase tracking-[0.28em] text-white/60">
+          Chapter {String(visualIndex + 1).padStart(2, "0")}
+        </p>
 
         {formattedYear && (
           <p className="absolute bottom-4 left-5 font-serif text-5xl leading-none tracking-[-0.05em] text-white">
             {formattedYear}
           </p>
         )}
-
-        <p className="absolute right-4 top-4 text-[9px] uppercase tracking-[0.28em] text-white/60">
-          Chapter {String(visualIndex + 1).padStart(2, "0")}
-        </p>
       </div>
 
       <div className="px-6 py-6">
-        <p className="truncate text-[10px] uppercase tracking-[0.28em] text-white/45">
-          {milestone.category || "Milestone"}
+        <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#f0a087]">
+          {categoryLabel}
         </p>
 
         <h3
@@ -120,20 +163,20 @@ export default function CustomNode({
             text-[29px]
             leading-[1]
             tracking-[-0.03em]
-            text-[#F4F0E8]
+            text-[#f5efe3]
           "
         >
           {milestone.title}
         </h3>
 
-        <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-4">
-          <span className="text-[9px] uppercase tracking-[0.24em] text-white/35">
-            Open archive
+        <div className="mt-7 flex items-center justify-between border-t border-[#f5efe3]/10 pt-4">
+          <span className="text-[9px] uppercase tracking-[0.24em] text-[#f5efe3]/38">
+            Open chapter
           </span>
 
           <span
             aria-hidden="true"
-            className="text-xl text-white/60 transition duration-300 group-hover:translate-x-1 group-hover:text-white"
+            className="text-xl text-[#f5efe3]/60 transition duration-300 group-hover:translate-x-1 group-hover:text-[#f0a087]"
           >
             →
           </span>
@@ -147,9 +190,9 @@ export default function CustomNode({
           !h-3
           !w-3
           !border-2
-          !border-black
-          !bg-[#F4F0E8]
-          !shadow-[0_0_18px_rgba(244,240,232,0.55)]
+          !border-[#174a50]
+          !bg-[#f0a087]
+          !shadow-[0_0_18px_rgba(240,160,135,0.55)]
         "
       />
     </article>

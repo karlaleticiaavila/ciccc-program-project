@@ -38,10 +38,17 @@ export default function MilestoneCard({
   const { data: session } = useSession();
 
   const [evidences, setEvidences] = useState<Evidence[]>([]);
+  const [isEvidenceLoading, setIsEvidenceLoading] =
+    useState(false);
+  const [evidenceError, setEvidenceError] = useState("");
+
   const [isEvidenceFormOpen, setIsEvidenceFormOpen] =
     useState(false);
   const [isEditFormOpen, setIsEditFormOpen] =
     useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const fetchEvidence = useCallback(async () => {
     if (!milestone) {
@@ -50,6 +57,9 @@ export default function MilestoneCard({
     }
 
     try {
+      setIsEvidenceLoading(true);
+      setEvidenceError("");
+
       const response = await fetch(
         `http://localhost:5000/api/evidence/milestone/${milestone._id}`
       );
@@ -61,15 +71,24 @@ export default function MilestoneCard({
       const data: Evidence[] = await response.json();
       setEvidences(data);
     } catch (error) {
-      console.error("Error fetching evidence:", error);
       setEvidences([]);
+      setEvidenceError(
+        error instanceof Error
+          ? error.message
+          : "Could not load evidence"
+      );
+    } finally {
+      setIsEvidenceLoading(false);
     }
   }, [milestone]);
 
   useEffect(() => {
     void fetchEvidence();
+
     setIsEvidenceFormOpen(false);
     setIsEditFormOpen(false);
+    setIsDeleteOpen(false);
+    setDeleteError("");
   }, [fetchEvidence]);
 
   if (!milestone) {
@@ -77,20 +96,17 @@ export default function MilestoneCard({
   }
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this milestone?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     if (!session?.accessToken) {
-      console.error("No access token available");
+      setDeleteError(
+        "Your session is unavailable. Please sign in again."
+      );
       return;
     }
 
     try {
+      setIsDeleting(true);
+      setDeleteError("");
+
       const response = await fetch(
         `http://localhost:5000/api/milestones/${milestone._id}`,
         {
@@ -112,264 +128,288 @@ export default function MilestoneCard({
       await onMilestoneDeleted();
       onClose();
     } catch (error) {
-      console.error("Error deleting milestone:", error);
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong"
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
+  const formattedDate = new Date(
+    milestone.date
+  ).toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <>
-      {/* Fondo detrás del drawer */}
       <button
         type="button"
         aria-label="Close milestone details"
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-black/15 backdrop-blur-[1px]"
+        className="fixed inset-0 z-40 bg-[#102f35]/55 backdrop-blur-[3px]"
       />
 
-      {/* Drawer */}
       <aside
         className="
           fixed
-          inset-y-4
-          right-4
+          inset-y-3
+          right-3
           z-50
-          w-[calc(100%-2rem)]
-          max-w-[520px]
+          w-[calc(100%-1.5rem)]
+          max-w-[560px]
           overflow-y-auto
-          rounded-[2rem]
+          rounded-[28px]
           border
-          border-black/10
-          bg-white
-          px-6
-          py-6
-          text-black
-          shadow-2xl
-          md:px-9
-          md:py-8
+          border-[#173f43]/15
+          bg-[#e9e2d4]
+          text-[#173f43]
+          shadow-[0_35px_120px_rgba(11,43,47,0.35)]
+          md:inset-y-5
+          md:right-5
+          md:w-[calc(100%-2.5rem)]
         "
       >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-black/10 pb-5">
-          <p className="mr-auto text-xs uppercase tracking-[0.3em] text-black/40">
-            {isEditFormOpen
-              ? "Edit milestone"
-              : "Milestone details"}
-          </p>
-
-          {!isEditFormOpen && (
-            <>
-              <button
-                type="button"
-                onClick={() => setIsEditFormOpen(true)}
-                className="
-                  rounded-full
-                  border
-                  border-black/20
-                  px-4
-                  py-2
-                  text-sm
-                  transition
-                  hover:bg-black
-                  hover:text-white
-                "
-              >
-                Edit
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="
-                  rounded-full
-                  border
-                  border-red-300
-                  px-4
-                  py-2
-                  text-sm
-                  text-red-600
-                  transition
-                  hover:bg-red-600
-                  hover:text-white
-                "
-              >
-                Delete
-              </button>
-            </>
-          )}
-
-          <button
-            type="button"
-            onClick={
-              isEditFormOpen
-                ? () => setIsEditFormOpen(false)
-                : onClose
-            }
-            aria-label={
-              isEditFormOpen
-                ? "Close edit form"
-                : "Close milestone details"
-            }
-            className="
-              flex
-              h-10
-              w-10
-              shrink-0
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-black/10
-              text-2xl
-              leading-none
-              text-black/50
-              transition
-              hover:border-black
-              hover:bg-black
-              hover:text-white
-            "
-          >
-            ×
-          </button>
-        </div>
-
         {isEditFormOpen ? (
-          <EditMilestoneForm
-            milestone={milestone}
-            onMilestoneUpdated={async () => {
-              await onMilestoneUpdated();
-              setIsEditFormOpen(false);
-            }}
-            onClose={() => setIsEditFormOpen(false)}
-          />
+          <div className="p-4 md:p-6">
+            <EditMilestoneForm
+              milestone={milestone}
+              onMilestoneUpdated={async () => {
+                await onMilestoneUpdated();
+                setIsEditFormOpen(false);
+              }}
+              onClose={() => setIsEditFormOpen(false)}
+            />
+          </div>
         ) : (
           <>
-            {/* Información del milestone */}
-            <div className="py-9">
-              <p className="text-xs uppercase tracking-[0.3em] text-black/45">
-                {milestone.category}
-              </p>
-
-              <h2 className="mt-4 font-serif text-4xl leading-tight md:text-5xl">
-                {milestone.title}
-              </h2>
-
-              <p className="mt-5 text-xs uppercase tracking-[0.18em] text-black/45">
-                {new Date(
-                  milestone.date
-                ).toLocaleDateString("en-CA", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-
-              <p className="mt-7 text-base leading-7 text-black/65">
-                {milestone.description}
-              </p>
-            </div>
-
-            {/* Evidence header */}
-            <div className="flex items-center justify-between gap-4 border-y border-black/10 py-5">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-black/45">
-                  Evidence
+            <header className="sticky top-0 z-10 border-b border-[#173f43]/12 bg-[#e9e2d4]/95 px-6 py-5 backdrop-blur-xl md:px-9">
+              <div className="flex items-center gap-3">
+                <p className="mr-auto text-[10px] uppercase tracking-[0.32em] text-[#173f43]/48">
+                  Milestone details
                 </p>
 
-                <p className="mt-2 text-sm text-black/55">
-                  {evidences.length}{" "}
-                  {evidences.length === 1
-                    ? "item"
-                    : "items"}{" "}
-                  documented
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsEditFormOpen(true)}
+                  className="rounded-full border border-[#173f43]/20 px-4 py-2 text-[10px] uppercase tracking-[0.16em] transition hover:border-[#173f43] hover:bg-[#173f43] hover:text-[#f5efe3]"
+                >
+                  Edit
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteOpen(true)}
+                  className="rounded-full border border-[#b85f54]/35 px-4 py-2 text-[10px] uppercase tracking-[0.16em] text-[#9d493f] transition hover:bg-[#b85f54] hover:text-white"
+                >
+                  Delete
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close milestone details"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#173f43]/15 text-xl text-[#173f43]/55 transition hover:border-[#173f43] hover:bg-[#173f43] hover:text-[#f5efe3]"
+                >
+                  ×
+                </button>
               </div>
+            </header>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setIsEvidenceFormOpen(
-                    (currentValue) => !currentValue
-                  )
-                }
-                className="
-                  shrink-0
-                  rounded-full
-                  border
-                  border-black
-                  px-4
-                  py-2
-                  text-sm
-                  transition
-                  hover:bg-black
-                  hover:text-white
-                "
-              >
-                {isEvidenceFormOpen ? "Close" : "+ Add"}
-              </button>
-            </div>
-
-            {/* Evidence content */}
-            {evidences.length === 0 ? (
-              <div className="py-9">
-                <p className="font-serif text-2xl">
-                  This chapter has no evidence yet.
+            <div className="px-6 pb-10 md:px-9">
+              <section className="py-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#d46f5e]">
+                  {milestone.category || "Milestone"}
                 </p>
 
-                <p className="mt-3 text-sm leading-6 text-black/55">
-                  Add a link, certificate, image, video or
-                  document that helps tell this part of your
-                  story.
+                <h2 className="mt-5 font-serif text-4xl leading-[0.95] tracking-[-0.04em] md:text-6xl">
+                  {milestone.title}
+                </h2>
+
+                <p className="mt-6 text-[10px] uppercase tracking-[0.22em] text-[#173f43]/45">
+                  {formattedDate}
                 </p>
-              </div>
-            ) : (
-              <div className="divide-y divide-black/10">
-                {evidences.map((evidence) => (
-                  <a
-                    key={evidence._id}
-                    href={evidence.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-start justify-between gap-5 py-6"
+
+                <p className="mt-8 text-base leading-8 text-[#173f43]/68">
+                  {milestone.description ||
+                    "No description has been added to this chapter yet."}
+                </p>
+              </section>
+
+              <section className="border-y border-[#173f43]/12 py-6">
+                <div className="flex items-center justify-between gap-5">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.32em] text-[#173f43]/48">
+                      Evidence
+                    </p>
+
+                    <p className="mt-2 text-sm text-[#173f43]/58">
+                      {evidences.length}{" "}
+                      {evidences.length === 1
+                        ? "item"
+                        : "items"}{" "}
+                      documented
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIsEvidenceFormOpen(
+                        (currentValue) => !currentValue
+                      )
+                    }
+                    className="shrink-0 rounded-full bg-[#173f43] px-5 py-2.5 text-[10px] uppercase tracking-[0.17em] text-[#f5efe3] transition hover:-translate-y-0.5 hover:bg-[#245a60]"
                   >
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.25em] text-black/40">
-                        {evidence.type}
-                      </p>
+                    {isEvidenceFormOpen
+                      ? "Close form"
+                      : "Add evidence"}
+                  </button>
+                </div>
+              </section>
 
-                      <h3 className="mt-2 font-serif text-2xl">
-                        {evidence.title}
-                      </h3>
+              {isEvidenceLoading ? (
+                <div className="py-12 text-center">
+                  <span className="mx-auto block h-2 w-2 animate-pulse rounded-full bg-[#d46f5e]" />
 
-                      {evidence.description && (
-                        <p className="mt-3 text-sm leading-6 text-black/55">
-                          {evidence.description}
+                  <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-[#173f43]/45">
+                    Loading evidence
+                  </p>
+                </div>
+              ) : evidenceError ? (
+                <div className="my-7 border border-[#b85f54]/25 bg-[#b85f54]/10 px-5 py-4">
+                  <p className="text-sm text-[#8e4038]">
+                    {evidenceError}
+                  </p>
+                </div>
+              ) : evidences.length === 0 ? (
+                <div className="py-10">
+                  <p className="font-serif text-3xl leading-tight">
+                    This chapter has no evidence yet.
+                  </p>
+
+                  <p className="mt-4 max-w-md text-sm leading-7 text-[#173f43]/58">
+                    Add a link, certificate, image, video or
+                    document that helps preserve this part of
+                    your story.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-[#173f43]/12">
+                  {evidences.map((evidence) => (
+                    <a
+                      key={evidence._id}
+                      href={evidence.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start justify-between gap-5 py-7"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[9px] uppercase tracking-[0.27em] text-[#d46f5e]">
+                          {evidence.type}
                         </p>
-                      )}
-                    </div>
 
-                    <span className="mt-2 shrink-0 text-sm transition group-hover:translate-x-1">
-                      View →
-                    </span>
-                  </a>
-                ))}
-              </div>
-            )}
+                        <h3 className="mt-3 font-serif text-2xl leading-tight">
+                          {evidence.title}
+                        </h3>
 
-            {/* Evidence form */}
-            {isEvidenceFormOpen && (
-              <div className="mt-4 border-t border-black/10 pt-8">
-                <CreateEvidenceForm
-                  milestoneId={milestone._id}
-                  onEvidenceCreated={async () => {
-                    await fetchEvidence();
-                    setIsEvidenceFormOpen(false);
-                  }}
-                />
-              </div>
-            )}
+                        {evidence.description && (
+                          <p className="mt-3 text-sm leading-6 text-[#173f43]/58">
+                            {evidence.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <span className="mt-2 shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#173f43]/48 transition group-hover:translate-x-1 group-hover:text-[#d46f5e]">
+                        View →
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {isEvidenceFormOpen && (
+                <div className="mt-6 border-t border-[#173f43]/12 pt-8">
+                  <CreateEvidenceForm
+                    milestoneId={milestone._id}
+                    onEvidenceCreated={async () => {
+                      await fetchEvidence();
+                      setIsEvidenceFormOpen(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </>
         )}
       </aside>
+
+      {isDeleteOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-5">
+          <button
+            type="button"
+            aria-label="Cancel milestone deletion"
+            onClick={() => {
+              if (!isDeleting) {
+                setIsDeleteOpen(false);
+                setDeleteError("");
+              }
+            }}
+            className="absolute inset-0 bg-[#102f35]/70 backdrop-blur-sm"
+          />
+
+          <div className="relative w-full max-w-md border border-[#f5efe3]/15 bg-[#173f43] p-7 text-[#f5efe3] shadow-[0_30px_100px_rgba(8,35,38,0.5)] md:p-9">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#f0a087]">
+              Delete milestone
+            </p>
+
+            <h3 className="mt-5 font-serif text-4xl leading-[0.95] tracking-[-0.04em]">
+              Delete this chapter permanently?
+            </h3>
+
+            <p className="mt-6 text-sm leading-7 text-[#f5efe3]/62">
+              This will remove “{milestone.title}” from your
+              journey. This action cannot be undone.
+            </p>
+
+            {deleteError && (
+              <p className="mt-5 border border-[#f0a087]/25 bg-[#713f3a]/30 px-4 py-3 text-sm text-[#f5d0c7]">
+                {deleteError}
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setDeleteError("");
+                }}
+                className="rounded-full border border-[#f5efe3]/20 px-6 py-3 text-[10px] uppercase tracking-[0.17em] text-[#f5efe3]/70 transition hover:border-[#f5efe3] hover:text-[#f5efe3] disabled:opacity-50"
+              >
+                Keep milestone
+              </button>
+
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleDelete}
+                className="rounded-full bg-[#d46f5e] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.17em] text-[#173f43] transition hover:bg-[#f0a087] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isDeleting
+                  ? "Deleting..."
+                  : "Delete permanently"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
