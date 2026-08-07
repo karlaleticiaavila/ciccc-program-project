@@ -76,7 +76,7 @@ export default function Mission() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/65 via-transparent to-[#173f43]/10" />
         </div>
 
-        <div className="max-w-2xl">
+       <div className="max-w-2xl pb-10 md:pb-0">
           <p className="text-xs uppercase tracking-[0.34em] text-[#f5efe3]/45">
             Our mission
           </p>

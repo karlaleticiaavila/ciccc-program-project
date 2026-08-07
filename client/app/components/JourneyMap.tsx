@@ -118,9 +118,9 @@ export default function JourneyMap({
   if (isLoading) {
     return (
       <section
-        id="journey-map"
-        className="relative overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:px-8 md:py-32"
-      >
+  id="journey-map"
+  className="relative scroll-mt-24 overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:scroll-mt-28 md:px-8 md:py-32"
+>
         <JourneyGlow />
 
         <div className="relative mx-auto max-w-[1500px]">
@@ -244,7 +244,7 @@ export default function JourneyMap({
           </div>
         </div>
 
-        <div className="relative h-[640px] w-full overflow-hidden border border-[#f5efe3]/15 bg-[#174a50]">
+        <div className="relative h-[560px] w-full overflow-hidden border border-[#f5efe3]/15 bg-[#174a50] md:h-[640px]">
           <div className="pointer-events-none absolute -left-28 -top-28 h-[360px] w-[360px] rounded-full bg-[#79a7b7]/20 blur-[110px]" />
 
           <div className="pointer-events-none absolute -bottom-32 right-[10%] h-[380px] w-[380px] rounded-full bg-[#e88b72]/15 blur-[120px]" />

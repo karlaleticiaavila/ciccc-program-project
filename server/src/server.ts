@@ -1,6 +1,7 @@
+import "dotenv/config";
+
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 
@@ -8,8 +9,6 @@ import { connectDB } from "./config/database.js";
 import userRoutes from "./routes/userRoutes.js";
 import milestoneRoutes from "./routes/milestoneRoutes.js";
 import evidenceRoutes from "./routes/evidenceRoutes.js";
-
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);

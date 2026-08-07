@@ -37,12 +37,12 @@ export default function Navbar() {
         backdrop-blur-xl
       "
     >
-      <nav className="mx-auto flex max-w-[1500px] items-center justify-between gap-5 px-5 py-4 md:px-8 md:py-5">
+      <nav className="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-4 py-4 sm:gap-5 sm:px-5 md:px-8 md:py-5">
         <button
           type="button"
           onClick={scrollToTop}
           className="
-            max-w-[175px]
+            max-w-[145px]
             text-left
             font-serif
             text-base
@@ -51,6 +51,7 @@ export default function Navbar() {
             text-[#f5efe3]
             transition
             hover:text-[#f0a087]
+            sm:max-w-[175px]
             md:max-w-none
             md:text-lg
           "
@@ -128,7 +129,7 @@ export default function Navbar() {
               rounded-full
               border
               border-[#f5efe3]/30
-              px-5
+              px-4
               py-2.5
               text-[10px]
               uppercase
@@ -139,6 +140,7 @@ export default function Navbar() {
               hover:border-[#f5efe3]
               hover:bg-[#f5efe3]
               hover:text-[#173f43]
+              sm:px-5
             "
           >
             Sign out
@@ -151,7 +153,7 @@ export default function Navbar() {
               shrink-0
               rounded-full
               bg-[#f0a087]
-              px-5
+              px-4
               py-2.5
               text-[10px]
               font-semibold
@@ -164,6 +166,7 @@ export default function Navbar() {
               hover:-translate-y-0.5
               hover:bg-[#f5b09a]
               hover:shadow-[0_12px_30px_rgba(232,139,114,0.3)]
+              sm:px-5
             "
           >
             Sign in

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Session } from "next-auth";
 
 type DashboardProps = {
@@ -17,6 +18,10 @@ export default function Dashboard({
   const firstName = fullName.split(" ")[0] || "there";
   const userImage = session.user?.image;
 
+  const [hasImageError, setHasImageError] = useState(false);
+
+  const showUserImage = Boolean(userImage) && !hasImageError;
+
   const scrollToJourney = () => {
     document
       .getElementById("journey-map")
@@ -30,19 +35,22 @@ export default function Dashboard({
       <div className="pointer-events-none absolute bottom-0 right-[25%] h-[380px] w-[380px] rounded-full bg-[#79a7b7]/15 blur-[130px]" />
 
       <div className="mx-auto grid min-h-[760px] max-w-[1600px] lg:grid-cols-[1.08fr_0.92fr]">
-        {/* LEFT: USER DASHBOARD */}
         <div className="relative flex min-h-[680px] flex-col justify-between px-5 py-12 md:px-10 md:py-16 lg:min-h-[760px] lg:px-14">
           <div className="flex items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              {userImage ? (
+              {showUserImage ? (
                 <img
-                  src={userImage}
+                  src={userImage ?? ""}
                   alt={fullName || firstName}
-                  className="h-14 w-14 rounded-full border border-[#f5efe3]/25 object-cover shadow-[0_0_0_6px_rgba(245,239,227,0.06)]"
+                  onError={() => setHasImageError(true)}
+                  className="h-14 w-14 shrink-0 rounded-full border border-[#f5efe3]/25 object-cover shadow-[0_0_0_6px_rgba(245,239,227,0.06)]"
                 />
               ) : (
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5efe3]/20 bg-[#f5efe3]/10 font-serif text-xl">
-                  {firstName.charAt(0).toUpperCase()}
+                <div
+                  aria-label={`${firstName} profile placeholder`}
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f5efe3]/20 bg-[#f5efe3]/10 font-serif text-xl uppercase text-[#f5efe3]"
+                >
+                  {firstName.charAt(0) || "U"}
                 </div>
               )}
 
@@ -117,7 +125,6 @@ export default function Dashboard({
           </div>
         </div>
 
-        {/* RIGHT: GRAFFITI / REFLECTION */}
         <div className="relative min-h-[620px] overflow-hidden border-t border-[#f5efe3]/10 lg:min-h-[760px] lg:border-l lg:border-t-0">
           <img
             src="/hero-graffiti.jpg"
@@ -125,7 +132,6 @@ export default function Dashboard({
             className="absolute inset-0 h-full w-full object-cover"
           />
 
-          {/* Light overlays only, so the image remains visible */}
           <div className="absolute inset-0 bg-[#153f43]/20" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/80 via-transparent to-[#164b53]/10" />
 

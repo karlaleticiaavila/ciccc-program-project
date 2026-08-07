@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 type EvidenceType =
   | "github"
@@ -35,9 +35,19 @@ export default function CreateEvidenceForm({
   const [type, setType] = useState<EvidenceType>("github");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFileChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedFile = event.target.files?.[0] ?? null;
+
+    setFile(selectedFile);
+    setError("");
+  };
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
@@ -48,20 +58,32 @@ export default function CreateEvidenceForm({
       setIsSubmitting(true);
       setError("");
 
+      if (!url.trim() && !file) {
+        throw new Error(
+          "Please add an evidence URL or select a file."
+        );
+      }
+
+      const formData = new FormData();
+
+      formData.append("title", title.trim());
+      formData.append("type", type);
+      formData.append("description", description.trim());
+      formData.append("milestoneId", milestoneId);
+
+      if (url.trim()) {
+        formData.append("url", url.trim());
+      }
+
+      if (file) {
+        formData.append("file", file);
+      }
+
       const response = await fetch(
         "http://localhost:5000/api/evidence",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: title.trim(),
-            type,
-            url: url.trim(),
-            description: description.trim(),
-            milestoneId,
-          }),
+          body: formData,
         }
       );
 
@@ -77,6 +99,7 @@ export default function CreateEvidenceForm({
       setType("github");
       setUrl("");
       setDescription("");
+      setFile(null);
 
       await onEvidenceCreated();
     } catch (error) {
@@ -209,7 +232,6 @@ export default function CreateEvidenceForm({
               setUrl(event.target.value)
             }
             placeholder="https://..."
-            required
             className="
               w-full
               border
@@ -229,9 +251,49 @@ export default function CreateEvidenceForm({
           />
 
           <p className="mt-2 text-xs leading-5 text-[#173f43]/42">
-            File uploads will be available when Cloudinary is
-            connected.
+            Add a URL or upload a file below.
           </p>
+        </label>
+
+        <label className="block">
+          <span className="mb-2 block text-[9px] uppercase tracking-[0.25em] text-[#173f43]/48">
+            Upload file
+          </span>
+
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.mp4,.webm"
+            className="
+              block
+              w-full
+              cursor-pointer
+              border
+              border-[#173f43]/18
+              bg-[#f8f3ea]
+              text-sm
+              text-[#173f43]/65
+
+              file:mr-4
+              file:border-0
+              file:bg-[#173f43]
+              file:px-4
+              file:py-3.5
+              file:text-[10px]
+              file:font-semibold
+              file:uppercase
+              file:tracking-[0.15em]
+              file:text-[#f5efe3]
+              file:transition
+              hover:file:bg-[#d46f5e]
+            "
+          />
+
+          {file && (
+            <p className="mt-2 break-all text-xs text-[#173f43]/55">
+              Selected: {file.name}
+            </p>
+          )}
         </label>
 
         <label className="block">
@@ -277,7 +339,7 @@ export default function CreateEvidenceForm({
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-5 border-t border-[#173f43]/12 px-5 py-5 md:px-6">
+      <div className="flex items-center justify-between gap-5 border-t border-[#173f43]/12 px-5 pb-9 pt-5 md:px-6 md:pb-7">
         <p className="hidden max-w-[210px] text-xs leading-5 text-[#173f43]/42 sm:block">
           Evidence helps mentors and recruiters understand the
           work behind each milestone.
@@ -306,7 +368,7 @@ export default function CreateEvidenceForm({
           "
         >
           {isSubmitting
-            ? "Adding evidence..."
+            ? "Uploading..."
             : "Add evidence"}
         </button>
       </div>
