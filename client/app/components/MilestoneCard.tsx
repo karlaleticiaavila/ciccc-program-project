@@ -301,35 +301,87 @@ export default function MilestoneCard({
                 </div>
               ) : (
                 <div className="divide-y divide-[#173f43]/12">
-                  {evidences.map((evidence) => (
-                    <a
-                      key={evidence._id}
-                      href={evidence.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-start justify-between gap-5 py-7"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-[9px] uppercase tracking-[0.27em] text-[#d46f5e]">
-                          {evidence.type}
-                        </p>
+                 {evidences.map((evidence) => (
+  <div
+    key={evidence._id}
+    className="py-7"
+  >
+    {evidence.type === "image" ? (
+      <a
+        href={evidence.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block"
+      >
+        <div className="relative h-[260px] overflow-hidden border border-[#173f43]/12 bg-[#173f43]/5">
+          <img
+            src={evidence.url}
+            alt={evidence.title}
+            className="
+              h-full
+              w-full
+              object-cover
+              transition
+              duration-500
+              group-hover:scale-[1.03]
+            "
+          />
 
-                        <h3 className="mt-3 font-serif text-2xl leading-tight">
-                          {evidence.title}
-                        </h3>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/55 via-transparent to-transparent" />
 
-                        {evidence.description && (
-                          <p className="mt-3 text-sm leading-6 text-[#173f43]/58">
-                            {evidence.description}
-                          </p>
-                        )}
-                      </div>
+          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-5 p-5 text-[#f5efe3]">
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.27em] text-[#f0a087]">
+                Image evidence
+              </p>
 
-                      <span className="mt-2 shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#173f43]/48 transition group-hover:translate-x-1 group-hover:text-[#d46f5e]">
-                        View →
-                      </span>
-                    </a>
-                  ))}
+              <h3 className="mt-2 font-serif text-2xl leading-tight">
+                {evidence.title}
+              </h3>
+            </div>
+
+            <span className="shrink-0 text-[9px] uppercase tracking-[0.18em] text-[#f5efe3]/70 transition group-hover:translate-x-1 group-hover:text-[#f5efe3]">
+              View →
+            </span>
+          </div>
+        </div>
+
+        {evidence.description && (
+          <p className="mt-4 text-sm leading-6 text-[#173f43]/58">
+            {evidence.description}
+          </p>
+        )}
+      </a>
+    ) : (
+      <a
+        href={evidence.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group flex items-start justify-between gap-5"
+      >
+        <div className="min-w-0">
+          <p className="text-[9px] uppercase tracking-[0.27em] text-[#d46f5e]">
+            {evidence.type}
+          </p>
+
+          <h3 className="mt-3 font-serif text-2xl leading-tight">
+            {evidence.title}
+          </h3>
+
+          {evidence.description && (
+            <p className="mt-3 text-sm leading-6 text-[#173f43]/58">
+              {evidence.description}
+            </p>
+          )}
+        </div>
+
+        <span className="mt-2 shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#173f43]/48 transition group-hover:translate-x-1 group-hover:text-[#d46f5e]">
+          View →
+        </span>
+      </a>
+    )}
+  </div>
+))}
                 </div>
               )}
 

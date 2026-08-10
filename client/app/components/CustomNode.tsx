@@ -12,6 +12,7 @@ import type { Milestone } from "../../lib/types/milestone";
 type CustomNodeData = {
   milestone: Milestone;
   visualIndex?: number;
+  evidenceImage?: string;
 };
 
 type CustomMilestoneNode = Node<
@@ -72,7 +73,11 @@ function normalizeCategory(category?: string) {
 export default function CustomNode({
   data,
 }: NodeProps<CustomMilestoneNode>) {
-  const { milestone, visualIndex = 0 } = data;
+  const {
+    milestone,
+    visualIndex = 0,
+    evidenceImage,
+  } = data;
 
   const milestoneDate = new Date(milestone.date);
 
@@ -129,18 +134,56 @@ export default function CustomNode({
 
       <div
         className="relative h-[170px] overflow-hidden"
-        style={{
-          background: categoryStyle.background,
-        }}
+        style={
+          evidenceImage
+            ? undefined
+            : {
+                background: categoryStyle.background,
+              }
+        }
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/75 via-transparent to-white/5" />
+        {evidenceImage && (
+          <img
+            src={evidenceImage}
+            alt=""
+            className="
+              absolute
+              inset-0
+              h-full
+              w-full
+              object-cover
+              transition
+              duration-700
+              group-hover:scale-105
+            "
+          />
+        )}
 
-        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-white/15" />
-        <div className="absolute -bottom-14 -left-10 h-36 w-36 rounded-full border border-white/10" />
+        {evidenceImage ? (
+          <>
+            <div className="absolute inset-0 bg-[#102f35]/20" />
 
-        <p className="absolute right-4 top-4 text-[9px] uppercase tracking-[0.28em] text-white/60">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/90 via-[#102f35]/15 to-black/10" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#102f35]/75 via-transparent to-white/5" />
+
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-white/15" />
+
+            <div className="absolute -bottom-14 -left-10 h-36 w-36 rounded-full border border-white/10" />
+          </>
+        )}
+
+        <p className="absolute right-4 top-4 text-[9px] uppercase tracking-[0.28em] text-white/65">
           Chapter {String(visualIndex + 1).padStart(2, "0")}
         </p>
+
+        {evidenceImage && (
+          <p className="absolute left-5 top-4 text-[8px] uppercase tracking-[0.25em] text-white/55">
+            Evidence
+          </p>
+        )}
 
         {formattedYear && (
           <p className="absolute bottom-4 left-5 font-serif text-5xl leading-none tracking-[-0.05em] text-white">
@@ -150,9 +193,17 @@ export default function CustomNode({
       </div>
 
       <div className="px-6 py-6">
-        <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#f0a087]">
-          {categoryLabel}
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#f0a087]">
+            {categoryLabel}
+          </p>
+
+          {evidenceImage && (
+            <span className="shrink-0 text-[8px] uppercase tracking-[0.2em] text-[#f5efe3]/35">
+              Evidence attached
+            </span>
+          )}
+        </div>
 
         <h3
           className="

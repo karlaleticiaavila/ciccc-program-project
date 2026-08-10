@@ -33,6 +33,21 @@ type JourneyMapProps = {
   onMilestoneSelect: (milestone: Milestone) => void;
 };
 
+type Evidence = {
+  _id: string;
+  title: string;
+  type:
+    | "image"
+    | "certificate"
+    | "link"
+    | "github"
+    | "video"
+    | "document";
+  url: string;
+  description?: string;
+  milestoneId: string;
+};
+
 export default function JourneyMap({
   milestones,
   isLoading,
@@ -41,6 +56,9 @@ export default function JourneyMap({
 }: JourneyMapProps) {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+
+  const [evidenceImages, setEvidenceImages] =
+    useState<Record<string, string>>({});
 
   const sortedMilestones = useMemo(() => {
     return [...milestones].sort((first, second) => {
@@ -68,6 +86,85 @@ export default function JourneyMap({
     []
   );
 
+  /*
+   * Fetch the first image evidence for every milestone.
+   */
+  useEffect(() => {
+    if (sortedMilestones.length === 0) {
+      setEvidenceImages({});
+      return;
+    }
+
+    let isCancelled = false;
+
+    const fetchEvidenceImages = async () => {
+      try {
+        const results = await Promise.all(
+          sortedMilestones.map(async (milestone) => {
+            try {
+              const response = await fetch(
+                `http://localhost:5000/api/evidence/milestone/${milestone._id}`
+              );
+
+              if (!response.ok) {
+                return {
+                  milestoneId: milestone._id,
+                  imageUrl: "",
+                };
+              }
+
+              const evidence: Evidence[] =
+                await response.json();
+
+              const firstImage = evidence.find(
+                (item) => item.type === "image"
+              );
+
+              return {
+                milestoneId: milestone._id,
+                imageUrl: firstImage?.url ?? "",
+              };
+            } catch {
+              return {
+                milestoneId: milestone._id,
+                imageUrl: "",
+              };
+            }
+          })
+        );
+
+        if (isCancelled) {
+          return;
+        }
+
+        const imageMap: Record<string, string> = {};
+
+        results.forEach((result) => {
+          if (result.imageUrl) {
+            imageMap[result.milestoneId] =
+              result.imageUrl;
+          }
+        });
+
+        setEvidenceImages(imageMap);
+      } catch (error) {
+        console.error(
+          "Could not load evidence images:",
+          error
+        );
+      }
+    };
+
+    void fetchEvidenceImages();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [sortedMilestones]);
+
+  /*
+   * Build React Flow nodes + edges.
+   */
   useEffect(() => {
     setNodes((currentNodes) =>
       sortedMilestones.map((milestone, index) => {
@@ -88,6 +185,8 @@ export default function JourneyMap({
           data: {
             milestone,
             visualIndex: index,
+            evidenceImage:
+              evidenceImages[milestone._id] || undefined,
           },
         };
       })
@@ -113,14 +212,14 @@ export default function JourneyMap({
       });
 
     setEdges(timelineEdges);
-  }, [sortedMilestones]);
+  }, [sortedMilestones, evidenceImages]);
 
   if (isLoading) {
     return (
       <section
-  id="journey-map"
-  className="relative scroll-mt-24 overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:scroll-mt-28 md:px-8 md:py-32"
->
+        id="journey-map"
+        className="relative scroll-mt-24 overflow-hidden bg-[#123b40] px-5 py-24 text-[#f5efe3] md:scroll-mt-28 md:px-8 md:py-32"
+      >
         <JourneyGlow />
 
         <div className="relative mx-auto max-w-[1500px]">
@@ -206,8 +305,9 @@ export default function JourneyMap({
                 </h3>
 
                 <p className="mt-6 max-w-md text-base leading-7 text-[#f5efe3]/68">
-                  Add your first milestone from the dashboard. Its story,
-                  evidence and date will begin your personal timeline.
+                  Add your first milestone from the dashboard.
+                  Its story, evidence and date will begin your
+                  personal timeline.
                 </p>
               </div>
             </div>
@@ -238,8 +338,9 @@ export default function JourneyMap({
 
           <div className="max-w-sm border-l border-[#f5efe3]/20 pl-5">
             <p className="text-sm leading-6 text-[#f5efe3]/55">
-              Move through your timeline, rearrange each chapter and open a
-              milestone to explore its story and evidence.
+              Move through your timeline, rearrange each chapter
+              and open a milestone to explore its story and
+              evidence.
             </p>
           </div>
         </div>
