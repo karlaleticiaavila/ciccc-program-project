@@ -205,3 +205,98 @@ export const deleteMilestone = async (
     });
   }
 };
+
+export const updateMilestoneVisibility = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { isPublic } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    if (typeof isPublic !== "boolean") {
+      res.status(400).json({
+        message: "isPublic must be a boolean",
+      });
+      return;
+    }
+
+    const milestone = await Milestone.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId,
+      },
+      {
+        isPublic,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!milestone) {
+      res.status(404).json({
+        message:
+          "Milestone not found or you do not have permission",
+      });
+      return;
+    }
+
+    io.emit("milestoneUpdated", milestone);
+
+    res.status(200).json({
+      message: isPublic
+        ? "Milestone is now public"
+        : "Milestone is now private",
+      milestone,
+    });
+  } catch (error) {
+    console.error(
+      "Error updating milestone visibility:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Error updating milestone visibility",
+    });
+  }
+};
+
+export const getPublicMilestoneById = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const milestone = await Milestone.findOne({
+      _id: req.params.id,
+      isPublic: true,
+    }).populate("userId", "name email");
+
+    if (!milestone) {
+      res.status(404).json({
+        message:
+          "Public milestone not found or this milestone is private",
+      });
+      return;
+    }
+
+    res.status(200).json(milestone);
+  } catch (error) {
+    console.error(
+      "Error getting public milestone:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Error getting public milestone",
+    });
+  }
+};

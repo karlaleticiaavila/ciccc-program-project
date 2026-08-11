@@ -6,6 +6,7 @@ export interface IMilestone extends Document {
   date: Date;
   category: string;
   userId: mongoose.Types.ObjectId;
+  isPublic: boolean;
 }
 
 const MilestoneSchema = new Schema<IMilestone>(
@@ -35,6 +36,11 @@ const MilestoneSchema = new Schema<IMilestone>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    isPublic: {
+      type: Boolean,
+      default: false,
     },
   },
   {

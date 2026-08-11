@@ -4,4 +4,5 @@ export type Milestone = {
   description: string;
   date: string;
     category: string;
+    isPublic?: boolean;
 };

@@ -49,6 +49,13 @@ export default function MilestoneCard({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [isUpdatingVisibility, setIsUpdatingVisibility] =
+  useState(false);
+
+const [visibilityError, setVisibilityError] =
+  useState("");
+
+const [copyMessage, setCopyMessage] = useState("");
 
   const fetchEvidence = useCallback(async () => {
     if (!milestone) {
@@ -137,7 +144,68 @@ export default function MilestoneCard({
       setIsDeleting(false);
     }
   };
+const handleVisibilityChange = async () => {
+  if (!session?.accessToken) {
+    setVisibilityError(
+      "Your session is unavailable. Please sign in again."
+    );
+    return;
+  }
 
+  try {
+    setIsUpdatingVisibility(true);
+    setVisibilityError("");
+    setCopyMessage("");
+
+    const response = await fetch(
+      `http://localhost:5000/api/milestones/${milestone._id}/visibility`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        body: JSON.stringify({
+          isPublic: !milestone.isPublic,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Could not update visibility"
+      );
+    }
+
+    await onMilestoneUpdated();
+  } catch (error) {
+    setVisibilityError(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong"
+    );
+  } finally {
+    setIsUpdatingVisibility(false);
+  }
+};
+
+const handleCopyLink = async () => {
+  try {
+    const publicUrl = `${window.location.origin}/milestones/${milestone._id}`;
+
+    await navigator.clipboard.writeText(publicUrl);
+
+    setCopyMessage("Link copied");
+
+    setTimeout(() => {
+      setCopyMessage("");
+    }, 2000);
+  } catch {
+    setCopyMessage("Could not copy link");
+  }
+};
   const formattedDate = new Date(
     milestone.date
   ).toLocaleDateString("en-CA", {
@@ -240,6 +308,111 @@ export default function MilestoneCard({
                     "No description has been added to this chapter yet."}
                 </p>
               </section>
+
+              <section className="border-y border-[#173f43]/12 py-6">
+  <div className="flex flex-col gap-5">
+    <div className="flex items-center justify-between gap-5">
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.32em] text-[#173f43]/48">
+          Visibility
+        </p>
+
+        <div className="mt-2 flex items-center gap-3">
+          <span
+            className={`
+              h-2
+              w-2
+              rounded-full
+              ${
+                milestone.isPublic
+                  ? "bg-[#6f8b4b]"
+                  : "bg-[#173f43]/30"
+              }
+            `}
+          />
+
+          <p className="text-sm text-[#173f43]/65">
+            {milestone.isPublic
+              ? "Public milestone"
+              : "Private milestone"}
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        disabled={isUpdatingVisibility}
+        onClick={handleVisibilityChange}
+        className="
+          shrink-0
+          rounded-full
+          border
+          border-[#173f43]/25
+          px-5
+          py-2.5
+          text-[10px]
+          uppercase
+          tracking-[0.17em]
+          text-[#173f43]
+          transition
+          hover:border-[#173f43]
+          hover:bg-[#173f43]
+          hover:text-[#f5efe3]
+          disabled:cursor-not-allowed
+          disabled:opacity-50
+        "
+      >
+        {isUpdatingVisibility
+          ? "Updating..."
+          : milestone.isPublic
+            ? "Make private"
+            : "Make public"}
+      </button>
+    </div>
+
+    {milestone.isPublic && (
+      <div className="flex flex-col gap-3 border-t border-[#173f43]/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[9px] uppercase tracking-[0.25em] text-[#d46f5e]">
+            Shareable
+          </p>
+
+          <p className="mt-2 text-xs leading-5 text-[#173f43]/50">
+            Anyone with the link can view this milestone.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className="
+            shrink-0
+            rounded-full
+            bg-[#d46f5e]
+            px-5
+            py-2.5
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[0.17em]
+            text-[#173f43]
+            transition
+            hover:-translate-y-0.5
+            hover:bg-[#f0a087]
+          "
+        >
+          {copyMessage || "Copy link"}
+        </button>
+      </div>
+    )}
+
+    {visibilityError && (
+      <p className="border border-[#b85f54]/25 bg-[#b85f54]/10 px-4 py-3 text-sm text-[#8e4038]">
+        {visibilityError}
+      </p>
+    )}
+  </div>
+</section>
 
               <section className="border-y border-[#173f43]/12 py-6">
                 <div className="flex items-center justify-between gap-5">
