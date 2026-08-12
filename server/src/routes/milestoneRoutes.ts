@@ -8,6 +8,7 @@ import {
   deleteMilestone,
   updateMilestoneVisibility,
   getPublicMilestoneById,
+  getPublicMilestones,
 } from "../controllers/milestoneController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -15,6 +16,7 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Public route - no authentication required
+router.get("/public", getPublicMilestones);
 router.get("/public/:id", getPublicMilestoneById);
 
 // Authenticated routes

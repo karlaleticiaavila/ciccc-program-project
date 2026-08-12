@@ -300,3 +300,26 @@ export const getPublicMilestoneById = async (
     });
   }
 };
+export const getPublicMilestones = async (
+  _req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const milestones = await Milestone.find({
+      isPublic: true,
+    })
+      .populate("userId", "name email")
+      .sort({ date: -1 });
+
+    res.status(200).json(milestones);
+  } catch (error) {
+    console.error(
+      "Error getting public milestones:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Error getting public milestones",
+    });
+  }
+};

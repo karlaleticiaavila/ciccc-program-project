@@ -1,9 +1,11 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
+
 
 export default function Navbar() {
   const { status } = useSession();
+  const router = useRouter();
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -80,14 +82,13 @@ export default function Navbar() {
               >
                 Mentors
               </button>
-
-              <button
+                    <button
                 type="button"
-                className="cursor-default py-2 opacity-40"
-                title="Coming soon"
-              >
-                Recruiters
-              </button>
+               onClick={() => router.push("/recruiters")}
+               className="relative py-2 transition hover:text-[#f5efe3]"
+>
+  Recruiters
+</button>
             </>
           ) : (
             <>
@@ -106,14 +107,13 @@ export default function Navbar() {
               >
                 Mentors
               </button>
-
-              <button
-                type="button"
-                className="cursor-default py-2 opacity-40"
-                title="Coming soon"
-              >
-                Recruiters
-              </button>
+<button
+  type="button"
+  onClick={() => router.push("/recruiters")}
+  className="relative py-2 transition hover:text-[#f5efe3]"
+>
+  Recruiters
+</button>
             </>
           )}
         </div>
