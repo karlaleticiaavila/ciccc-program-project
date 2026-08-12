@@ -68,8 +68,8 @@ const [copyMessage, setCopyMessage] = useState("");
       setEvidenceError("");
 
       const response = await fetch(
-        `http://localhost:5000/api/evidence/milestone/${milestone._id}`
-      );
+  `${process.env.NEXT_PUBLIC_API_URL}/api/evidence/milestone/${milestone._id}`
+);
 
       if (!response.ok) {
         throw new Error("Could not fetch evidence");
@@ -115,7 +115,7 @@ const [copyMessage, setCopyMessage] = useState("");
       setDeleteError("");
 
       const response = await fetch(
-        `http://localhost:5000/api/milestones/${milestone._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/milestones/${milestone._id}`,
         {
           method: "DELETE",
           headers: {
@@ -158,7 +158,7 @@ const handleVisibilityChange = async () => {
     setCopyMessage("");
 
     const response = await fetch(
-      `http://localhost:5000/api/milestones/${milestone._id}/visibility`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/milestones/${milestone._id}/visibility`,
       {
         method: "PATCH",
         headers: {

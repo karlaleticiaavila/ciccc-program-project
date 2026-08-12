@@ -33,7 +33,7 @@ export default function RecruitersPage() {
         setError("");
 
         const response = await fetch(
-          "http://localhost:5000/api/milestones/public"
+          `${process.env.NEXT_PUBLIC_API_URL}/api/milestones/public`
         );
 
         if (!response.ok) {

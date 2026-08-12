@@ -54,7 +54,7 @@ export default function PublicMilestonePage() {
         setError("");
 
         const milestoneResponse = await fetch(
-          `http://localhost:5000/api/milestones/public/${id}`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/milestones/public/${id}`
         );
 
         if (!milestoneResponse.ok) {
@@ -69,7 +69,7 @@ export default function PublicMilestonePage() {
         setMilestone(milestoneData);
 
         const evidenceResponse = await fetch(
-          `http://localhost:5000/api/evidence/milestone/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/evidence/milestone/${id}`
         );
 
         if (evidenceResponse.ok) {

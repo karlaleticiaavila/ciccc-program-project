@@ -148,7 +148,7 @@ export default function Navbar() {
         ) : (
           <button
             type="button"
-            onClick={() => signIn("google")}
+            onClick={() => router.push("/login")}
             className="
               shrink-0
               rounded-full

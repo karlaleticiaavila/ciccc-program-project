@@ -103,7 +103,7 @@ export default function JourneyMap({
           sortedMilestones.map(async (milestone) => {
             try {
               const response = await fetch(
-                `http://localhost:5000/api/evidence/milestone/${milestone._id}`
+                `${process.env.NEXT_PUBLIC_API_URL}/api/evidence/milestone/${milestone._id}`
               );
 
               if (!response.ok) {
