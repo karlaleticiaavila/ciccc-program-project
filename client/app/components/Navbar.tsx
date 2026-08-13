@@ -75,13 +75,13 @@ export default function Navbar() {
                 Journey
               </button>
 
-              <button
-                type="button"
-                className="cursor-default py-2 opacity-40"
-                title="Coming soon"
-              >
-                Mentors
-              </button>
+             <button
+  type="button"
+  onClick={() => router.push("/mentors")}
+  className="relative py-2 transition hover:text-[#f5efe3]"
+>
+  Mentors
+</button>
                     <button
                 type="button"
                onClick={() => router.push("/recruiters")}
@@ -101,12 +101,12 @@ export default function Navbar() {
               </button>
 
               <button
-                type="button"
-                className="cursor-default py-2 opacity-40"
-                title="Coming soon"
-              >
-                Mentors
-              </button>
+  type="button"
+  onClick={() => router.push("/mentors")}
+  className="relative py-2 transition hover:text-[#f5efe3]"
+>
+  Mentors
+</button>
 <button
   type="button"
   onClick={() => router.push("/recruiters")}
