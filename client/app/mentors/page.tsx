@@ -26,6 +26,15 @@ interface Feedback {
   createdAt: string;
   mentorId?: Creator;
 }
+interface Evidence {
+  _id: string;
+  title: string;
+  type: string;
+  url: string;
+  description?: string;
+  milestoneId: string;
+  resourceType?: string;
+}
 
 export default function MentorsPage() {
   const { data: session, status } = useSession();
@@ -33,10 +42,13 @@ export default function MentorsPage() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [feedback, setFeedback] = useState<Record<string, Feedback[]>>({});
   const [messages, setMessages] = useState<Record<string, string>>({});
+  const [evidenceByMilestone, setEvidenceByMilestone] =
+  useState<Record<string, Evidence[]>>({});
 
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -56,7 +68,30 @@ export default function MentorsPage() {
         const data: Milestone[] = await response.json();
 
         setMilestones(data);
+const evidenceEntries = await Promise.all(
+  data.map(async (milestone) => {
+    try {
+      const evidenceResponse = await fetch(
+        `${apiUrl}/api/evidence/public/milestone/${milestone._id}`
+      );
 
+      if (!evidenceResponse.ok) {
+        return [milestone._id, []] as const;
+      }
+
+      const evidenceData: Evidence[] =
+        await evidenceResponse.json();
+
+      return [milestone._id, evidenceData] as const;
+    } catch {
+      return [milestone._id, []] as const;
+    }
+  })
+);
+
+setEvidenceByMilestone(
+  Object.fromEntries(evidenceEntries)
+);
         // Load existing feedback for every public milestone
         const feedbackEntries = await Promise.all(
           data.map(async (milestone) => {
@@ -220,7 +255,15 @@ const handleFeedbackSubmit = async (
               {milestones.map((milestone, index) => {
                 const milestoneFeedback =
                   feedback[milestone._id] || [];
+const milestoneEvidence =
+  evidenceByMilestone[milestone._id] || [];
 
+const featuredEvidence =
+  milestoneEvidence.find(
+    (item) =>
+      item.resourceType === "image" ||
+      item.type.toLowerCase() === "image"
+  );
                 return (
                   <article
                     key={milestone._id}
@@ -246,16 +289,67 @@ const handleFeedbackSubmit = async (
                         <p className="mb-8 max-w-lg leading-7 text-[#f5efe3]/70">
                           {milestone.description}
                         </p>
+                        {featuredEvidence && (
+  <div className="mb-8 overflow-hidden border border-[#f5efe3]/15 bg-[#123b40]/35">
+    <img
+      src={featuredEvidence.url}
+      alt={featuredEvidence.title}
+      className="h-56 w-full object-cover md:h-64"
+    />
 
-                        <div className="space-y-1 text-sm text-[#f5efe3]/60">
-                          <p>
-                            {milestone.userId?.name || "Anonymous creator"}
-                          </p>
+    {(featuredEvidence.title || featuredEvidence.description) && (
+      <div className="border-t border-[#f5efe3]/10 p-4">
+        <p className="text-[8px] uppercase tracking-[0.25em] text-[#f0a087]">
+          Evidence
+        </p>
 
-                          {milestone.userId?.email && (
-                            <p>{milestone.userId.email}</p>
-                          )}
-                        </div>
+        {featuredEvidence.title && (
+          <p className="mt-2 font-serif text-xl">
+            {featuredEvidence.title}
+          </p>
+        )}
+
+        {featuredEvidence.description && (
+          <p className="mt-2 text-sm leading-6 text-[#f5efe3]/55">
+            {featuredEvidence.description}
+          </p>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+                       <div className="flex items-center gap-4">
+  {milestone.userId?.profilePicture ? (
+    <img
+      src={milestone.userId.profilePicture}
+      alt={milestone.userId.name || "Creator"}
+      referrerPolicy="no-referrer"
+      className="h-11 w-11 rounded-full object-cover ring-1 ring-[#f5efe3]/20"
+    />
+  ) : (
+    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#f5efe3]/20 font-serif text-lg">
+      {(milestone.userId?.name || "A")
+        .split(" ")
+        .slice(0, 2)
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase()}
+    </div>
+  )}
+
+  <div className="min-w-0">
+    <p className="font-serif text-lg text-[#f5efe3]">
+      {milestone.userId?.name || "Anonymous creator"}
+    </p>
+
+    {milestone.userId?.email && (
+      <p className="mt-1 truncate text-xs text-[#f5efe3]/40">
+        {milestone.userId.email}
+      </p>
+    )}
+  </div>
+</div>
                       </div>
 
                       <Link

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Readable } from "stream";
 import Evidence from "../models/Evidence.js";
 import cloudinary from "../config/cloudinary.js";
+import Milestone from "../models/Milestone.js";
 
 export const createEvidence = async (
   req: Request,
@@ -201,6 +202,40 @@ export const getEvidenceByMilestone = async (
     res.status(500).json({
       message: "Error fetching evidence by milestone",
       error,
+    });
+  }
+};
+
+export const getPublicEvidenceByMilestone = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const milestone = await Milestone.findOne({
+      _id: req.params.milestoneId,
+      isPublic: true,
+    });
+
+    if (!milestone) {
+      res.status(404).json({
+        message: "Public milestone not found",
+      });
+      return;
+    }
+
+    const evidence = await Evidence.find({
+      milestoneId: milestone._id,
+    });
+
+    res.status(200).json(evidence);
+  } catch (error) {
+    console.error(
+      "Error fetching public evidence:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Error fetching public evidence",
     });
   }
 };

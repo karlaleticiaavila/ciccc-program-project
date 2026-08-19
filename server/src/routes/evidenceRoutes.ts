@@ -6,6 +6,7 @@ import {
   getEvidenceByMilestone,
   updateEvidence,
   deleteEvidence,
+  getPublicEvidenceByMilestone
 } from "../controllers/evidenceController.js";
 
 import upload from "../middleware/upload.js";
@@ -15,7 +16,17 @@ const router = express.Router();
 router.post("/", upload.single("file"), createEvidence);
 
 router.get("/", getEvidence);
-router.get("/milestone/:milestoneId", getEvidenceByMilestone);
+
+router.get(
+  "/public/milestone/:milestoneId",
+  getPublicEvidenceByMilestone
+);
+
+router.get(
+  "/milestone/:milestoneId",
+  getEvidenceByMilestone
+);
+
 router.get("/:id", getEvidenceById);
 
 router.put("/:id", updateEvidence);
