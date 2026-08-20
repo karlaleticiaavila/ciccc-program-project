@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { socket } from "../../lib/socket";
 
 interface Creator {
   _id?: string;
@@ -125,6 +126,41 @@ setEvidenceByMilestone(
 
     loadMilestones();
   }, [apiUrl]);
+  useEffect(() => {
+  const handleFeedbackCreated = ({
+    milestoneId,
+    feedback: newFeedback,
+  }: {
+    milestoneId: string;
+    feedback: Feedback;
+  }) => {
+    setFeedback((current) => {
+      const existing = current[milestoneId] || [];
+
+      const alreadyExists = existing.some(
+        (item) => item._id === newFeedback._id
+      );
+
+      if (alreadyExists) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [milestoneId]: [
+          newFeedback,
+          ...existing,
+        ],
+      };
+    });
+  };
+
+  socket.on("feedbackCreated", handleFeedbackCreated);
+
+  return () => {
+    socket.off("feedbackCreated", handleFeedbackCreated);
+  };
+}, []);
 
 const handleFeedbackSubmit = async (
   event: FormEvent<HTMLFormElement>,
@@ -170,13 +206,25 @@ const handleFeedbackSubmit = async (
 
     const newFeedback: Feedback = JSON.parse(responseText);
 
-    setFeedback((current) => ({
-      ...current,
-      [milestoneId]: [
-        newFeedback,
-        ...(current[milestoneId] || []),
-      ],
-    }));
+setFeedback((current) => {
+  const existing = current[milestoneId] || [];
+
+  const alreadyExists = existing.some(
+    (item) => item._id === newFeedback._id
+  );
+
+  if (alreadyExists) {
+    return current;
+  }
+
+  return {
+    ...current,
+    [milestoneId]: [
+      newFeedback,
+      ...existing,
+    ],
+  };
+});
 
     setMessages((current) => ({
       ...current,
@@ -429,9 +477,16 @@ const featuredEvidence =
 
                       {/* EXISTING FEEDBACK */}
                       <div>
-                        <p className="mb-6 text-xs uppercase tracking-[0.3em] text-[#f5efe3]/50">
-                          Community feedback
-                        </p>
+                        <div className="mb-6 flex items-center justify-between gap-4">
+  <p className="text-xs uppercase tracking-[0.3em] text-[#f5efe3]/50">
+    Community feedback
+  </p>
+
+  <span className="text-[9px] uppercase tracking-[0.22em] text-[#f0a087]">
+    {milestoneFeedback.length}{" "}
+    {milestoneFeedback.length === 1 ? "note" : "notes"}
+  </span>
+</div>
 
                         {milestoneFeedback.length === 0 ? (
                           <p className="text-sm italic text-[#f5efe3]/45">
@@ -448,17 +503,35 @@ const featuredEvidence =
                                   “{item.message}”
                                 </p>
 
-                                <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.18em] text-[#f5efe3]/45">
-                                  <span>
-                                    {item.mentorId?.name || "Mentor"}
-                                  </span>
+                                <div className="flex items-center justify-between gap-4">
+  <div className="flex min-w-0 items-center gap-3">
+    {item.mentorId?.profilePicture ? (
+      <img
+        src={item.mentorId.profilePicture}
+        alt={item.mentorId.name || "Mentor"}
+        referrerPolicy="no-referrer"
+        className="h-8 w-8 rounded-full object-cover ring-1 ring-[#f5efe3]/15"
+      />
+    ) : (
+      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5efe3]/15 font-serif text-xs">
+        {(item.mentorId?.name || "M")
+          .split(" ")
+          .slice(0, 2)
+          .map((word) => word[0])
+          .join("")
+          .toUpperCase()}
+      </div>
+    )}
 
-                                  <span>
-                                    {new Date(
-                                      item.createdAt
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
+    <span className="truncate text-xs uppercase tracking-[0.18em] text-[#f5efe3]/45">
+      {item.mentorId?.name || "Mentor"}
+    </span>
+  </div>
+
+  <span className="shrink-0 text-xs uppercase tracking-[0.18em] text-[#f5efe3]/35">
+    {new Date(item.createdAt).toLocaleDateString()}
+  </span>
+</div>
                               </div>
                             ))}
                           </div>

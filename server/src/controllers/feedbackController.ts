@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Feedback from "../models/Feedback.js";
 import Milestone from "../models/Milestone.js";
+import { io } from "../server.js";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -37,11 +38,16 @@ export const createFeedback = async (
     });
 
     const populatedFeedback = await feedback.populate(
-      "mentorId",
-      "name email profilePicture"
-    );
+  "mentorId",
+  "name email profilePicture"
+);
 
-    return res.status(201).json(populatedFeedback);
+io.emit("feedbackCreated", {
+  milestoneId,
+  feedback: populatedFeedback,
+});
+
+return res.status(201).json(populatedFeedback);
   } catch (error) {
     console.error("Error creating feedback:", error);
 
