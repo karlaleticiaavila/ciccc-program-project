@@ -16,7 +16,7 @@ const createAccessToken = (userId: string): string => {
     },
     jwtSecret,
     {
-      expiresIn: "7d",
+      expiresIn: "14d",
     }
   );
 };
