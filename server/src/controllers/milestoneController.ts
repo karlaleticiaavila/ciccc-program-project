@@ -278,7 +278,10 @@ export const getPublicMilestoneById = async (
     const milestone = await Milestone.findOne({
       _id: req.params.id,
       isPublic: true,
-    }).populate("userId", "name email");
+    }).populate(
+      "userId",
+      "name email bio profilePicture role"
+    );
 
     if (!milestone) {
       res.status(404).json({
@@ -308,7 +311,10 @@ export const getPublicMilestones = async (
     const milestones = await Milestone.find({
       isPublic: true,
     })
-      .populate("userId", "name email")
+      .populate(
+        "userId",
+        "name email bio profilePicture role"
+      )
       .sort({ date: -1 });
 
     res.status(200).json(milestones);

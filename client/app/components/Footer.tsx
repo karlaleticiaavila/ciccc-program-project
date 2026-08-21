@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function Footer() {
+  const router = useRouter();
   const currentYear = new Date().getFullYear();
 
   const scrollToTop = () => {
@@ -70,9 +73,29 @@ export default function Footer() {
           </p>
 
           <div className="flex flex-wrap gap-x-6 gap-y-3">
-            <span>Personal archive</span>
-            <span>Mentors</span>
-            <span>Recruiters</span>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="transition hover:text-[#f0a087]"
+            >
+              Personal archive
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/mentors")}
+              className="transition hover:text-[#f0a087]"
+            >
+              Mentors
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/recruiters")}
+              className="transition hover:text-[#f0a087]"
+            >
+              Recruiters
+            </button>
           </div>
 
           <p>All rights reserved</p>

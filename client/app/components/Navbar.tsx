@@ -1,7 +1,7 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
 
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Navbar() {
   const { status } = useSession();
@@ -12,12 +12,6 @@ export default function Navbar() {
       top: 0,
       behavior: "smooth",
     });
-  };
-
-  const scrollToJourney = () => {
-    document
-      .getElementById("journey-map")
-      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   const scrollToMission = () => {
@@ -64,31 +58,33 @@ export default function Navbar() {
           BECOMING?
         </button>
 
+        {/* DESKTOP NAV */}
         <div className="hidden items-center gap-8 text-[10px] uppercase tracking-[0.24em] text-[#f5efe3]/55 md:flex">
           {status === "authenticated" ? (
             <>
               <button
                 type="button"
-                onClick={scrollToJourney}
+                onClick={() => router.push("/")}
                 className="relative py-2 transition hover:text-[#f5efe3]"
               >
                 Journey
               </button>
 
-             <button
-  type="button"
-  onClick={() => router.push("/mentors")}
-  className="relative py-2 transition hover:text-[#f5efe3]"
->
-  Mentors
-</button>
-                    <button
+              <button
                 type="button"
-               onClick={() => router.push("/recruiters")}
-               className="relative py-2 transition hover:text-[#f5efe3]"
->
-  Recruiters
-</button>
+                onClick={() => router.push("/mentors")}
+                className="relative py-2 transition hover:text-[#f5efe3]"
+              >
+                Mentors
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/recruiters")}
+                className="relative py-2 transition hover:text-[#f5efe3]"
+              >
+                Recruiters
+              </button>
             </>
           ) : (
             <>
@@ -101,23 +97,25 @@ export default function Navbar() {
               </button>
 
               <button
-  type="button"
-  onClick={() => router.push("/mentors")}
-  className="relative py-2 transition hover:text-[#f5efe3]"
->
-  Mentors
-</button>
-<button
-  type="button"
-  onClick={() => router.push("/recruiters")}
-  className="relative py-2 transition hover:text-[#f5efe3]"
->
-  Recruiters
-</button>
+                type="button"
+                onClick={() => router.push("/mentors")}
+                className="relative py-2 transition hover:text-[#f5efe3]"
+              >
+                Mentors
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/recruiters")}
+                className="relative py-2 transition hover:text-[#f5efe3]"
+              >
+                Recruiters
+              </button>
             </>
           )}
         </div>
 
+        {/* AUTH BUTTON */}
         {status === "loading" ? (
           <div className="h-10 w-24 animate-pulse rounded-full border border-[#f5efe3]/15 bg-[#f5efe3]/5" />
         ) : status === "authenticated" ? (
@@ -173,6 +171,63 @@ export default function Navbar() {
           </button>
         )}
       </nav>
+
+      {/* MOBILE NAV */}
+      <div className="flex items-center justify-center gap-6 border-t border-[#f5efe3]/10 px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-[#f5efe3]/55 md:hidden">
+        {status === "authenticated" ? (
+          <>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="transition hover:text-[#f5efe3]"
+            >
+              Journey
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/mentors")}
+              className="transition hover:text-[#f5efe3]"
+            >
+              Mentors
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/recruiters")}
+              className="transition hover:text-[#f5efe3]"
+            >
+              Recruiters
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="transition hover:text-[#f5efe3]"
+            >
+              Home
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/mentors")}
+              className="transition hover:text-[#f5efe3]"
+            >
+              Mentors
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/recruiters")}
+              className="transition hover:text-[#f5efe3]"
+            >
+              Recruiters
+            </button>
+          </>
+        )}
+      </div>
     </header>
   );
 }
