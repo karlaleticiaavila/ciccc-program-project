@@ -2,6 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
   googleId?: string;
+  appleId?: string;
+  passwordHash?: string;
   name: string;
   email: string;
   role: "user" | "mentor" | "recruiter";
@@ -17,10 +19,21 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       sparse: true,
     },
+
+    appleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
     name: {
       type: String,
       required: true,
       trim: true,
+    },
+
+    passwordHash: {
+      type: String,
     },
 
     email: {
