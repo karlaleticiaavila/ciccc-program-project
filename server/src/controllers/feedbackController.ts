@@ -42,6 +42,12 @@ export const createFeedback = async (
   "name email profilePicture"
 );
 
+
+console.log("EMITTING feedbackCreated", {
+  milestoneId,
+  connectedClients: io.engine.clientsCount,
+});
+
 io.emit("feedbackCreated", {
   milestoneId,
   feedback: populatedFeedback,
