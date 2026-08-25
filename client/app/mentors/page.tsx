@@ -100,7 +100,6 @@ export default function MentorsPage() {
 
         setMilestones(data);
 
-        // Evidence
         const evidenceEntries =
           await Promise.all(
             data.map(
@@ -143,7 +142,6 @@ export default function MentorsPage() {
           )
         );
 
-        // Feedback
         const feedbackEntries =
           await Promise.all(
             data.map(
@@ -201,6 +199,10 @@ export default function MentorsPage() {
 
   // REAL-TIME FEEDBACK
   useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     const handleFeedbackCreated = ({
       milestoneId,
       feedback: newFeedback,
@@ -353,7 +355,6 @@ export default function MentorsPage() {
     <main className="min-h-screen bg-[#123b40] text-[#f5efe3]">
       <Navbar />
 
-      {/* HERO */}
       <section className="border-b border-[#f5efe3]/20 px-6 pb-16 pt-44 md:px-12 md:pt-40 lg:px-20">
         <div className="mx-auto max-w-7xl">
           <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[#f0a087]">
@@ -378,7 +379,6 @@ export default function MentorsPage() {
         </div>
       </section>
 
-      {/* ERROR */}
       {error && (
         <div className="mx-auto max-w-7xl px-6 pt-8 md:px-12 lg:px-20">
           <div className="border border-[#f0a087]/50 bg-[#f0a087]/10 px-5 py-4 text-sm text-[#f5efe3]">
@@ -387,7 +387,6 @@ export default function MentorsPage() {
         </div>
       )}
 
-      {/* MILESTONES */}
       <section className="px-6 py-16 md:px-12 lg:px-20">
         <div className="mx-auto max-w-7xl">
           {milestones.length === 0 ? (
@@ -428,7 +427,6 @@ export default function MentorsPage() {
                       key={milestone._id}
                       className="grid overflow-hidden border border-[#f5efe3]/20 bg-[#164b53] lg:grid-cols-[0.9fr_1.1fr]"
                     >
-                      {/* LEFT */}
                       <div className="flex flex-col justify-between border-b border-[#f5efe3]/20 p-8 lg:border-b-0 lg:border-r lg:p-10">
                         <div>
                           <div className="mb-14 flex items-center justify-between">
@@ -500,7 +498,6 @@ export default function MentorsPage() {
                             </div>
                           )}
 
-                          {/* CREATOR */}
                           <div className="flex items-center gap-4">
                             {milestone.userId
                               ?.profilePicture ? (
@@ -527,14 +524,10 @@ export default function MentorsPage() {
                                     ?.name ||
                                   "A"
                                 )
-                                  .split(
-                                    " "
-                                  )
+                                  .split(" ")
                                   .slice(0, 2)
                                   .map(
-                                    (
-                                      word
-                                    ) =>
+                                    (word) =>
                                       word[0]
                                   )
                                   .join("")
@@ -574,7 +567,6 @@ export default function MentorsPage() {
                         </Link>
                       </div>
 
-                      {/* RIGHT */}
                       <div className="p-8 lg:p-10">
                         <div className="mb-10">
                           <p className="mb-3 text-xs uppercase tracking-[0.3em] text-[#f0a087]">
@@ -623,9 +615,7 @@ export default function MentorsPage() {
                               }
                               placeholder="Share guidance, encouragement, or a useful next step..."
                               rows={5}
-                              maxLength={
-                                1000
-                              }
+                              maxLength={1000}
                               className="w-full resize-none border border-[#f5efe3]/20 bg-transparent p-5 text-[#f5efe3] outline-none transition placeholder:text-[#f5efe3]/35 focus:border-[#f0a087]"
                             />
 
@@ -666,7 +656,6 @@ export default function MentorsPage() {
                           </div>
                         )}
 
-                        {/* FEEDBACK */}
                         <div>
                           <div className="mb-6 flex items-center justify-between gap-4">
                             <p className="text-xs uppercase tracking-[0.3em] text-[#f5efe3]/50">
@@ -695,9 +684,7 @@ export default function MentorsPage() {
                           ) : (
                             <div className="space-y-5">
                               {milestoneFeedback.map(
-                                (
-                                  item
-                                ) => (
+                                (item) => (
                                   <div
                                     key={
                                       item._id
@@ -790,7 +777,6 @@ export default function MentorsPage() {
         </div>
       </section>
 
-      {/* FOOTER MESSAGE */}
       <section className="border-t border-[#f5efe3]/20 px-6 py-16 md:px-12 lg:px-20">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>

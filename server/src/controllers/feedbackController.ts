@@ -43,11 +43,6 @@ export const createFeedback = async (
 );
 
 
-console.log("EMITTING feedbackCreated", {
-  milestoneId,
-  connectedClients: io.engine.clientsCount,
-});
-
 io.emit("feedbackCreated", {
   milestoneId,
   feedback: populatedFeedback,
