@@ -112,11 +112,13 @@ export default function CustomNode({
         bg-[#123b40]
         text-[#f5efe3]
         shadow-[0_24px_65px_rgba(10,40,43,0.28)]
-        transition
+        transition-all
         duration-500
+        ease-out
         hover:-translate-y-2
+        hover:scale-[1.015]
         hover:border-[#f5efe3]/35
-        hover:shadow-[0_32px_85px_rgba(10,40,43,0.4)]
+        hover:shadow-[0_36px_95px_rgba(10,40,43,0.45)]
       "
     >
       <Handle
@@ -152,9 +154,11 @@ export default function CustomNode({
               h-full
               w-full
               object-cover
-              transition
+              transition-all
               duration-700
-              group-hover:scale-105
+              ease-out
+              group-hover:scale-[1.08]
+              group-hover:brightness-90
             "
           />
         )}
@@ -194,7 +198,7 @@ export default function CustomNode({
 
       <div className="px-6 py-6">
         <div className="flex items-center justify-between gap-4">
-          <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#f0a087]">
+          <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#f0a087] transition-all duration-500 group-hover:tracking-[0.32em]">
             {categoryLabel}
           </p>
 
@@ -215,19 +219,23 @@ export default function CustomNode({
             leading-[1]
             tracking-[-0.03em]
             text-[#f5efe3]
+            transition-all
+            duration-500
+            group-hover:translate-x-1
+            group-hover:text-white
           "
         >
           {milestone.title}
         </h3>
 
         <div className="mt-7 flex items-center justify-between border-t border-[#f5efe3]/10 pt-4">
-          <span className="text-[9px] uppercase tracking-[0.24em] text-[#f5efe3]/38">
+          <span className="text-[9px] uppercase tracking-[0.24em] text-[#f5efe3]/38 transition-all duration-300 group-hover:text-[#f5efe3]/65">
             Open chapter
           </span>
 
           <span
             aria-hidden="true"
-            className="text-xl text-[#f5efe3]/60 transition duration-300 group-hover:translate-x-1 group-hover:text-[#f0a087]"
+            className="text-xl text-[#f5efe3]/60 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#f0a087]"
           >
             →
           </span>
